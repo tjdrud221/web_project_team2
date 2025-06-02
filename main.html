@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TO-DO & TAKE-OFF</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background-color: #f9f9fa;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background: #fff;
+      padding: 28px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      left: 50px;
+      font-size: 36px;
+    }
+
+    .top-bar .highlight { font-weight: 900; font-style: italic; color: #BC6BB8; }
+    .top-bar .amp { font-style: normal; color: #656565; font-weight: 700; }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+
+    .nav-item {
+      position: relative;
+      padding: 0 30px;
+    }
+
+    .nav-item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 60%;
+      background-color: #ccc;
+    }
+
+    .nav-links span, .nav-links a, .dropdown div a {
+      color: #656565;
+      font-size: 28px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav-item span { cursor: pointer; }
+    .nav-item.active > a > span { color: #BC6BB8; }
+
+    .nav-item:hover .dropdown,
+    .nav-item:focus-within .dropdown {
+      display: flex;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 3px solid #eeeeee;
+      padding: 10px 16px;
+      border-radius: 12px;
+      z-index: 10;
+      flex-direction: row;
+      gap: 0;
+    }
+
+    .dropdown div {
+      padding: 0 12px;
+      position: relative;
+    }
+
+    .dropdown div:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 1px;
+      background-color: #ccc;
+    }
+
+    .dropdown div a {
+      font-size: 22px;
+      white-space: nowrap;
+      display: inline-block;
+      padding: 4px 0;
+    }
+
+    .dropdown div:hover a,
+    a:hover {
+      color: #BC6BB8;
+    }
+
+    .content {
+      flex: 1;
+      padding: 60px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      display: flex;
+      max-width: 1200px;
+      width: 100%;
+      gap: 40px;
+    }
+
+    aside {
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .profile-card, .memo-box {
+      background: #F3E8F4;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px #cecece;
+    }
+
+    .achieve-box {
+      background: #FFFFFF;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px #cecece;
+    }
+
+    .profile-card {
+      height: 349px;
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 40px auto 25px auto;
+      display: block;
+    }
+
+    .name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .email {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .profile-card p:last-of-type {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .memo-box {
+      background: white;
+      border-left: 5px solid #cc99d9;
+      text-align: left;
+      height: 146px;
+    }
+
+    .memo-box h3 {
+      color: #BC6BB8;
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .achieve-box h3 {
+      color: #BC6BB8;
+      margin-top: 20px;
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    .achieve-box {
+      height: 229px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 27px;
+      background: #E4E4E4;
+      border-radius: 45px;
+      margin-top: 35px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 32%;
+      background: #D3B2D5;
+      border-radius: 45px;
+    }
+
+    .main_content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .title {
+      font-weight: bold;
+      color: #a362c2;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .calendar-row {
+      display: flex;
+      gap: 40px;
+    }
+
+    .calendar-box {
+      flex: 2;
+      height: 240px;
+      background-color: #c891d1;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 10px;
+      box-shadow: 0 0 12px 4px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .calendar-month {
+      font-size: 20px;
+      color: white;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .calendar-day {
+      background-color: white;
+      border-radius: 8px;
+      width: 97%;
+      height: 80%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 56px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .calendar-box:hover {
+      box-shadow: 0 0 12px 4px rgba(0,0,0, 0.2); 
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+
+    .d-day-box {
+      flex: 1;
+      height: 240px;
+    }
+
+    .d-day-text {
+      font-size: 48px;
+      color: #BC6BB8;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 40px;
+    }   
+
+    .footer {
+      height: 75px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4%;
+    }
+
+    .footer-text {
+      font-size: 20px;
+      color: #797878;
+    }
+
+
+    .card:hover {
+        box-shadow: 0 0 12px 4px rgba(0,0,0, 0.2);
+        transition: all 0.2s ease-in-out; 
+        cursor: pointer;
+    }
+
+    .notice {
+      height: 200px;
+    }
+
+    .schedule {
+      height: 200px;
+    }
+
+    .notice li,
+    .schedule li {
+      margin-left: 30px;
+    }   
+
+
+    .input-wrapper {
+      display: flex;
+      gap: 10px;
+      margin: 10px 30px 0 30px;
+    }
+
+    .input-wrapper input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .input-wrapper button {
+      padding: 8px 16px;
+      background-color: #BC6BB8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .input-wrapper button:hover {
+      background-color: #a44fa4;
+    }
+
+    .notice-list,
+    .schedule-list {
+      margin-top: 10px;
+    }
+
+    .notice-list li,
+    .schedule-list li {
+      margin-bottom: 10px;
+    }
+
+    /* 반응형 웹 관련 css============================= */
+@media (max-width: 768px) {
+
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .top-bar {
+    position: static;    
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+    text-decoration: none;   
+  }
+
+  .top-bar a {
+    text-decoration: none;   
+  }
+  a:link,
+  a:visited {
+    text-decoration: none;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .nav-item {
+    padding: 10px 0;
+    width: 100%;
+  }
+
+  .dropdown {
+    position: static;
+    transform: none;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dropdown div {
+    padding: 0;
+  }
+
+  .content {
+    padding: 20px 10px;
+  }
+
+  .container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  aside {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .main_content {
+    width: 100%;
+  }
+
+  .calendar-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .calendar-box,
+  .d-day-box {
+    width: 100%;
+    height: 200px;
+  }
+
+  .calendar-day {
+    font-size: 40px;
+  }
+
+  .d-day-text {
+    font-size: 36px;
+    margin-top: 20px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .notice, .schedule {
+    height: auto;
+  }
+
+  .input-wrapper {
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px;
+  }
+
+  .input-wrapper input {
+    width: 100%;
+  }
+
+  .input-wrapper button {
+    width: 100%;
+  }
+
+  .footer {
+    justify-content: center;
+    padding-right: 0;
+    text-align: center;
+  }
+
+  .footer-text {
+    font-size: 16px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="main.html">
+      <div class="top-bar">
+        <span class="highlight">TO-DO</span>
+        <span class="amp">&amp;</span>
+        <span class="highlight">TAKE-OFF</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <div class="nav-item"><a href="calendar.html"><span>Calendar</span></a></div>
+      <div class="nav-item">
+        <a href="#"><span>Planner</span></a>
+        <div class="dropdown">
+          <div><a href="planner_weekly.html">Weekly</a></div>
+          <div><a href="#" id="go-daily">Daily</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>Travel</span></a>
+        <div class="dropdown">
+          <div><a href="travel_prepare.html">Prepare</a></div>
+          <div><a href="travel_explore.html">Explore</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>My Page</span></a>
+        <div class="dropdown">
+          <div><a href="mypage_record.html">Record</a></div>
+          <div><a href="mypage_setting.html">Setting</a></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div class="container">
+      <aside>
+        <div class="profile-card">
+          <img src="profile.jpg" alt="Profile Image" class="profile-img" />
+          <p style="font-size: 20px;"><strong id="sidebar-nickname">연양갱</strong></p>
+          <p id="user-email">123@sookmyung.ac.kr</p>
+          <p id="user-motto">매일매일을 작은 여행처럼 살아보기</p>
+        </div>
+        <div class="memo-box">
+          <h3>MEMO</h3>
+          <textarea id="memo-input" rows="2" 
+          placeholder="메모를 입력하세요" 
+          style="width: 100%; resize: none; font-size: 16px; padding: 6px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+        </div>
+        <div class="achieve-box">
+          <h3>achieve</h3>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <p class="achieve-percent">32%</p>
+        </div>
+      </aside>
+
+      <div class="main_content">
+            <div class="welcome_wrapper">
+                <h2 class="title">welcome!</h2>
+                <p>하루하루를 더 체계적으로. 당신의 모든 일정을 한눈에 관리해보세요.</p>
+                <script>
+                  const goal = localStorage.getItem("dailyGoal");
+                  const goalTextElement = document.getElementById("dailyGoalText");
+
+                  if (goal && goalTextElement) {
+                    goalTextElement.textContent = goal;
+                  } 
+                </script>
+            </div>
+
+            <div class="calendar-row">
+                <a href="calendar.html" class="calendar-box">
+                    <div class="calendar-month" id="calendar_month">JANUARY</div>
+                    <div class="calendar-day" id="calendar_day">15</div>
+                </a>
+                
+                <div class="card d-day-box">
+                    <div class="title">⏳ D-Day</div>
+                    <p class="d-day-text">D-1</p>
+                </div>
+            </div>
+
+            <div class="card notice">
+              <div class="title">📢 주요 공지</div>
+              <div class="input-wrapper">
+                <input class="notice-input" placeholder="공지를 입력하세요. 최대 두 개까지 가능합니다." />
+                <button class="add-notice-btn">추가</button>
+              </div>
+              <ul class="notice-list"></ul>
+            </div>
+
+            <div class="card schedule">
+              <div class="title">📌 주요 일정</div>
+              <div class="input-wrapper">
+                <input class="schedule-input" placeholder="일정을 입력하세요. 최대 두 개까지 가능합니다." />
+                <button class="add-schedule-btn">추가</button>
+              </div>
+              <ul class="schedule-list"></ul>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">© 2025 TO-DO to TAKE-OFF. Created by Team 02.</div>
+  </div>
+
+<script>
+  // js 페이지 내용 검증
+  const today = new Date();
+  const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+    "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+  const month = monthNames[today.getMonth()];
+  const day = today.getDate();
+  document.getElementById("calendar_month").textContent = month;
+  document.getElementById("calendar_day").textContent = day;
+
+  // 쿠키에서 정보 가져오기 함수
+  function getCookie(name) {
+    const cookies = document.cookie.split("; ");
+    for (let c of cookies) {
+      const [key, value] = c.split("=");
+      if (key === name) return decodeURIComponent(value);
+    }
+    return null;
+  }
+
+  // 성취도 UI 업데이트 함수
+  function updateProgressFromStorage() {
+    const nickname = getCookie("nickname");
+    if (!nickname) return;
+
+    const percent = parseInt(localStorage.getItem(`monthlyAchieve_${nickname}`)) || 0;
+    const fill = document.querySelector(".progress-fill");
+    const label = document.querySelector(".achieve-percent");
+
+    if (fill) fill.style.width = `${percent}%`;
+    if (label) label.textContent = `${percent}%`;
+  }
+
+  // 쿠키 사용자/비회원 구분
+  window.addEventListener("DOMContentLoaded", () => {
+    // 다크 모드
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark-mode");
+    }
+
+    // 글씨 색상
+    const color = localStorage.getItem("fontColor");
+    if (color) {
+      document.body.style.color = color;
+    }
+
+    // 글씨체
+    const font = localStorage.getItem("fontFamily");
+    if (font) {
+      document.body.style.fontFamily = font;
+      document.querySelectorAll("*").forEach(el => {
+        el.style.fontFamily = font;
+      });
+    }
+
+    // 사용자 정보 적용
+    const nickname = getCookie("nickname");
+    const email = getCookie("email");
+    const motto = getCookie("motto");
+
+    if (nickname) document.getElementById("sidebar-nickname").textContent = nickname;
+    if (email) document.getElementById("sidebar-email").textContent = email;
+    if (motto) document.getElementById("user-motto").textContent = motto;
+
+    // 성취도 반영
+    updateProgressFromStorage();
+
+    // 주요 일정/공지 불러오기
+    loadItems("notice");
+    loadItems("schedule");
+  });
+
+    //메뉴바 요일별 파일 매핑 (일: 0, 월: 1, ..., 토: 6)
+    const dayToFile = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dailyLink = document.getElementById('go-daily');
+
+      dailyLink.addEventListener('click', (e) => {
+        e.preventDefault(); // 기본 링크 이동 막기
+
+        const today = new Date();
+        const dayIndex = today.getDay(); // 0 ~ 6
+        const fileSuffix = dayToFile[dayIndex]; // 예: 'wed'
+        const url = `planner_daily_${fileSuffix}.html`;
+
+        window.location.href = url;
+      });
+    });
+
+    ///메모 저장========
+    const MEMO_KEY = "sharedMemo";
+
+    // 메모 저장 함수
+    function saveMemo() {
+      const memoInput = document.getElementById("memo-input");
+      if (memoInput) {
+        localStorage.setItem(MEMO_KEY, memoInput.value);
+      }
+    }
+
+    // 메모 불러오기 함수
+    function loadMemo() {
+      const savedMemo = localStorage.getItem(MEMO_KEY);
+      const memoInput = document.getElementById("memo-input");
+      if (memoInput && savedMemo !== null) {
+        memoInput.value = savedMemo;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadMemo();
+      
+      const memoInput = document.getElementById("memo-input");
+      if (memoInput) {
+        memoInput.addEventListener("input", saveMemo);
+      }
+    });
+
+    ///주요 일정 주요 공지 관련 =======================
+
+    const ITEM_KEYS = {
+      notice: "userNoticeItems",
+      schedule: "userScheduleItems"
+    };
+
+    // 저장
+    function saveItems(key, items) {
+      localStorage.setItem(ITEM_KEYS[key], JSON.stringify(items));
+    }
+
+    // 불러오기
+    function loadItems(key) {
+      const data = localStorage.getItem(ITEM_KEYS[key]);
+      return data ? JSON.parse(data) : [];
+    }
+
+    // 렌더링
+    function renderItems(key) {
+      const list = document.querySelector(`.${key}-list`);
+      const items = loadItems(key);
+      if (!list) return;
+
+      list.innerHTML = "";
+
+      if (items.length === 0) return;
+
+      items.forEach((text, index) => {
+        const li = document.createElement("li");
+        li.textContent = text;
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "×";
+        delBtn.style.marginLeft = "10px";
+        delBtn.style.fontSize = "14px";
+        delBtn.style.cursor = "pointer";
+
+        delBtn.addEventListener("click", () => {
+          items.splice(index, 1);
+          saveItems(key, items);
+          renderItems(key);
+        });
+
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    // 추가
+    function handleAdd(key, inputEl) {
+      if (!inputEl || !inputEl.value.trim()) return;
+
+      const items = loadItems(key);
+      if (items.length >= 2) {
+        alert("최대 2개까지만 추가할 수 있습니다.");
+        return;
+      }
+
+      items.push(inputEl.value.trim());
+      saveItems(key, items);
+      renderItems(key);
+      inputEl.value = "";
+    }
+
+    // 초기화
+    document.addEventListener("DOMContentLoaded", () => {
+      ["notice", "schedule"].forEach(renderItems);
+
+      document.querySelector(".add-notice-btn")?.addEventListener("click", () => {
+        const input = document.querySelector(".notice-input");
+        handleAdd("notice", input);
+      });
+
+      document.querySelector(".add-schedule-btn")?.addEventListener("click", () => {
+        const input = document.querySelector(".schedule-input");
+        handleAdd("schedule", input);
+      });
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goal</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .top-bar {
+    position: absolute;
+    top: 20px;
+    left: 50px;
+    font-size: 36px;
+  }
+
+  .top-bar .highlight {
+    font-weight: 900;
+    font-style: italic;
+    color: #b86cc3;
+  }
+
+  .top-bar .amp {
+    font-style: normal;
+    color: #555;
+    font-weight: 700;
+  }
+
+  .welcome {
+    margin-top: 30px;
+    font-size: 32px;
+    color: #000;
+  }
+
+  .username {
+    color: #b86cc3;
+    font-weight: bold;
+    font-size: 36px;
+  }
+
+  .quote {
+    margin-top: 85px;
+    font-size: 40px;
+    font-weight: 500;
+    color: #343434;
+    text-shadow: 0px 3px 3px rgba(0, 0, 0, 0.24);
+  }
+
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 50px;
+    font-size: 24px;
+    color: #4A4A4A;
+    cursor: pointer;
+
+    animation: blink 1.5s infinite;
+  }
+
+  #quote-input {
+    margin-top: 20px;
+    font-size: 18px;
+    padding: 10px 20px;
+    width: 400px;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    outline: none;
+  }
+</style>
+
+</head>
+<body>
+  <div class="top-bar">
+    <span class="highlight">TO-DO</span> <span class="amp">&amp;</span> <span class="highlight">TAKE-OFF</span>
+  </div>
+
+  <div class="welcome">
+    <span class="username" id="username">사용자</span> 님, 환영합니다!
+  </div>
+
+  <div class="quote" id="quote-display" contenteditable="true">매일매일을 작은 여행처럼 살아보기</div>
+
+  <div class="footer" id="to-main">press to do</div>
+
+<script>
+  function getCurrentUser() {
+    const nickname = document.cookie.match(/(?:^| )nickname=([^;]+)/);
+    if (nickname) return decodeURIComponent(nickname[1]);
+
+    const match = document.cookie.match(/(?:^| )user=([^;]+)/);
+    return match ? decodeURIComponent(match[1].split("@")[0]) : "사용자";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const username = getCurrentUser();
+    document.getElementById("username").textContent = username;
+
+    const quoteKey = "quote_" + username;
+    const quoteDisplay = document.getElementById("quote-display");
+    const quoteInput = document.getElementById("quote-input");
+
+    const savedQuote = localStorage.getItem(quoteKey);
+    if (savedQuote && savedQuote.trim() !== "") {
+      quoteDisplay.textContent = savedQuote;
+    } else {
+      quoteDisplay.textContent = "매일매일을 작은 여행처럼 살아보기";
+    }
+    quoteDisplay.addEventListener("blur", () => {
+      const value = quoteDisplay.textContent.trim();
+      if (value) {
+        localStorage.setItem(quoteKey, value);
+      } else {
+        localStorage.removeItem(quoteKey);
+      }
+    });
+
+    const font = localStorage.getItem("fontFamily");
+    if (font) {
+      document.body.style.fontFamily = font;
+    }
+
+    document.getElementById("to-main").addEventListener("click", () => {
+      const value = quoteDisplay.textContent.trim();
+
+      localStorage.setItem(quoteKey, value);
+
+      document.cookie = `motto=${encodeURIComponent(value)}; path=/; max-age=31536000`;
+      document.cookie = `nickname=${encodeURIComponent(username)}; path=/; max-age=31536000`;
+      document.cookie = `username=${encodeURIComponent(username + "@sookmyung.ac.kr")}; path=/; max-age=31536000`;
+
+      window.location.href = "main.html";
+    });
+  });
+</script>
+</body>
+</html>

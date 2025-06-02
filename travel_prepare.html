@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TO-DO & TAKE-OFF</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0; height: 100%;
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #F9F9FA;
+      display: flex; 
+      flex-direction: column;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 20px; 
+      left: 50px;
+      font-size: 36px;
+    }
+
+    .top-bar .highlight { 
+      font-weight: 900; 
+      font-style: italic; 
+      color: #BC6BB8; 
+    }
+
+    .top-bar .amp { 
+      font-style: normal; 
+      color: #656565; 
+      font-weight: 700; 
+    }
+
+    nav {
+      background: #fff; 
+      padding: 28px 50px;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      position: relative; 
+      flex-wrap: wrap;
+    }
+
+    .nav-links {
+      display: flex; 
+      gap: 0; 
+      flex-wrap: wrap;
+    }
+
+    .nav-item {
+      position: relative;
+      padding: 0 30px;
+    }
+
+    .nav-item:not(:last-child)::after {
+      content: ""; 
+      position: absolute; 
+      right: 0; 
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px; 
+      height: 60%; 
+      background-color: #ccc;
+    }
+
+    .nav-links span, .nav-links a, .dropdown div a {
+      color: #656565; 
+      font-size: 28px; 
+      text-decoration: none; 
+      cursor: pointer;
+    }
+
+    .nav-links a.active > span,
+    .nav-links a.active,
+    .nav-links span.active {
+      color: #BC6BB8;
+    }
+
+    .nav-item span { cursor: pointer; }
+    .nav-item.active > a > span {
+      color: #BC6BB8;
+    }
+
+    .nav-item:hover .dropdown,
+    .nav-item:focus-within .dropdown {
+      display: flex;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 3px solid #eeeeee;
+      padding: 10px 16px;
+      border-radius: 12px;
+      z-index: 10;
+      flex-direction: row;
+      gap: 0;
+      pointer-events: auto;
+    }
+
+    .dropdown div {
+      padding: 0 12px; position: relative;
+    }
+
+    .dropdown div:not(:last-child)::after {
+      content: ""; 
+      position: absolute; 
+      right: 0; 
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%; 
+      width: 1px; 
+      background-color: #ccc;
+    }
+
+    .dropdown div a {
+      font-size: 22px; 
+      white-space: nowrap;
+      display: inline-block; 
+      padding: 4px 0;
+    }
+
+    .dropdown div:hover a, a:hover {
+      color: #BC6BB8;
+    }
+
+    .content {
+      flex: 1;
+      padding: 40px;
+      text-align: center;
+    }
+
+
+    /* ========== FIRST ========== */
+    .empty-plan {
+      text-align: center;
+      margin-top: 100px;
+    }
+
+    .no-schedule {
+      font-size: 36px;
+      color: #343434;
+      margin-top: 230px;
+      margin-bottom: 30px;
+      font-weight: 400;
+    }
+
+    .ask-travel {
+      font-size: 24px;
+      color: #777;
+      margin-bottom: 83px;
+    }
+
+    .start-button {
+      padding: 12px 150px;
+      font-size: 30px;
+      background-color: #D3B2D5;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+
+    .start-button:hover {
+      background-color: #c48ed3;
+    }
+
+    /* ========== STEP 공통 요소 ========== */
+    .popup-step {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 643px;
+      height: 664px;
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 4px 4px rgba(135, 135, 135, 0.25);
+      text-align: center;
+      z-index: 1000;
+    }
+
+    .popup-step h2 {
+      font-size: 36px;
+      margin-top: 110px;
+      margin-bottom: 22px;
+      font-weight: 400;
+      color: #222;
+    }
+
+    .popup-step .username {
+      color: #BC6BB8;
+      font-weight: bold;
+      font-size: 24px;
+    }
+
+    .popup-step .normal {
+      font-size: 20px;
+    }
+
+    /* STEP 1 전용 */
+    #popup-step1 .travel_name {
+      font-size: 24px;
+      margin-top: 63px;
+      margin-bottom: 50px;
+    }
+
+    #popup-step1 input[type="text"] {
+      width: 300px;
+      height: 48px;
+      border: none;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      font-size: 16px;
+      padding: 0 10px;
+    }
+
+    #popup-step1 .next-button {
+      background-color: #D3B2D5;
+      border: none;
+      color: white;
+      padding: 12px 150px;
+      font-size: 30px;
+      border-radius: 15px;
+      cursor: pointer;
+      margin-top: 80px;
+    }
+
+    #popup-step1 .next-button:hover {
+      background-color: #c48ed3;
+    }
+
+    /* STEP 2 전용 */
+    #popup-step2 .travel_name {
+      font-size: 24px;
+      margin-top : 60px;
+      margin-bottom: 40px;
+    }
+
+    #popup-step2 input[type="date"] {
+      width: 300px;
+      height: 48px;
+      border: none;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      font-size: 16px;
+      padding: 0 10px;
+    }
+    
+    #popup-step2 .date-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;          
+      margin-bottom: 25px; 
+    }
+
+
+    #popup-step2 .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 80px;
+    }
+
+    /* STEP 2~4의 이전 버튼 공통 스타일 */
+    #popup-step2 .prev-button,  
+    #popup-step3 .prev-button,
+    #popup-step4 .prev-button {
+      background-color: #d3d3d3;
+      border: none;
+      color: white;
+      padding: 12px 50px;
+      font-size: 30px;
+      border-radius: 15px;
+      cursor: pointer;
+      margin-top: 40px;
+    }
+
+    #popup-step2 .prev-button:hover,
+    #popup-step3 .prev-button:hover,
+    #popup-step4 .prev-button:hover {
+      background-color: #CBCBCB;
+    }
+
+    /* STEP 2~4의 다음 버튼 공통 스타일 */
+    #popup-step2 .next-button,
+    #popup-step3 .next-button,
+    #popup-step4 .next-button {
+      background-color: #D3B2D5;
+      border: none;
+      color: white;
+      padding: 12px 50px;
+      font-size: 30px;
+      margin-left: 7px;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+
+    #popup-step2 .next-button:hover,
+    #popup-step3 .next-button:hover,
+    #popup-step4 .next-button:hover {
+      background-color: #c48ed3;
+    }
+
+
+    #popup-step2 .next-button:hover {
+      background-color: #c48ed3;
+    }
+
+    /* STEP 3 & STEP 4 전용 */
+    #popup-step3 .travel_name,
+    #popup-step4 .travel_name {
+      font-size: 16px;
+      margin-top: 30px;
+      margin-bottom: 5px;
+      text-align: left;       
+      width: fit-content;          
+      margin-left: calc(50% - 176px);
+    }
+
+    #popup-step3 input[type="text"],
+    #popup-step4 input[type="text"] {
+      width: 352px;
+      height: 50px;
+      border: none;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      font-size: 16px;
+      padding: 0 10px;
+      margin-bottom: 8px;
+    }
+
+    /* ========== Step5 ========== */
+    #popup-step5 {
+      display: none;
+      position: fixed;
+      top: 51%;  
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      width: 1319px;
+      height: 850px;
+      padding: 0 160px;
+
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+
+    #refresh-button {
+      position: absolute;
+      top: 40px;
+      right: 50px;
+      background: none;
+      border: none;
+      font-size: 28px;
+      padding: 10px;
+      cursor: pointer;
+      color: #BC6BB8;
+      z-index: 1001;
+    }
+    #result-title {
+      color: #BC6BB8;
+      font-weight: bold;
+      font-size: 36px;
+      margin-top : 90px;
+    }
+
+    #result-date {
+      color: #383838;
+      font-weight: bold;
+      font-size: 24px;
+      margin-top : 10px;
+
+    }
+
+    .info-bar {
+      display: flex; 
+      flex-direction: column; 
+      font-size: 16px; 
+      color: #555;
+      margin-top : 40px;
+      margin-bottom : 60px;
+    }
+
+    .plan-table td {
+      padding: 10px;
+      height: 30px;  
+    }
+
+    .plan-table td input {
+      width: 100%;
+      height: 40px;
+      padding: 10px;
+      font-size: 20px;
+      border: none;
+      background-color: #fff;
+      box-sizing: border-box;
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      height: 75px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4%;
+      margin-top: auto;
+    }
+
+    .footer-text {
+      font-size: 20px;
+      color: #797878;
+    }
+
+    .nav-item.open .dropdown {
+      display: flex !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <nav>
+    <a href="main.html">
+      <div class="top-bar">
+        <span class="highlight">TO-DO</span>
+        <span class="amp">&amp;</span>
+        <span class="highlight">TAKE-OFF</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <div class="nav-item"><a href="calendar.html"><span>Calendar</span></a></div>
+      <div class="nav-item">
+        <a href="#"><span>Planner</span></a>
+        <div class="dropdown">
+          <div><a href="planner_weekly.html">Weekly</a></div>
+          <div><a href="#" id="go-daily">Daily</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>Travel</span></a>
+        <div class="dropdown">
+          <div><a href="travel_prepare.html">Prepare</a></div>
+          <div><a href="travel_explore.html">Explore</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>My Page</span></a>
+        <div class="dropdown">
+          <div><a href="mypage_record.html">Record</a></div>
+          <div><a href="mypage_setting.html">Setting</a></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== FIRST ========== -->
+  <div class="empty-plan">
+    <h1 class="no-schedule">여행 일정이 없어요</h1>
+    <p class="ask-travel">여행을 떠나볼까요?</p>
+    <button class="start-button" onclick="openPopup()">시작하기</button>
+  </div>
+
+    <!-- ========== STEP 1 ========== -->
+    <div class="popup-step" id="popup-step1">
+      <h2>나만의 여행 일정을 시작해보세요 !</h2>
+      <p class="normal"><span class="username">연양갱</span> 님의 여행 계획표를 생성합니다</p>
+      <p class="travel_name">여행 이름을 입력해주세요</p>
+      <input type="text" />
+      <br />
+      <button class="next-button" onclick="goToStep(2)">다음 단계</button>
+    </div>
+
+    <!-- ========== STEP 2 ========== -->
+    <div class="popup-step" id="popup-step2">
+      <h2>아래 정보를 입력해주세요 !</h2>
+      <p class="normal"><span class="username">연양갱</span> 님의 여행 계획표를 생성합니다</p>
+      <p class="travel_name">언제 다녀오실 건가요?</p>
+      <div class="date-group">
+        <div class="date-line">
+          <label for="depart">출발</label>
+          <input type="date" id="depart" name="depart" />
+        </div>
+        <div class="date-line">
+          <label for="arrive">도착</label>
+          <input type="date" id="arrive" name="arrive" />
+        </div>
+      </div>
+      <button class="prev-button" onclick="goToStep(1)">이전 단계</button>
+      <button class="next-button" onclick="goToStep(3)">다음 단계</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 3 ========== -->
+  <div class="popup-step" id="popup-step3">
+    <h2>아래 정보를 입력해주세요 !</h2>
+    <p class="normal"><span class="username">연양갱</span> 님의 여행 계획표를 생성합니다</p>
+    <p class="travel_name">여행지로 가는 교통 수단</p>
+    <input type="text"/>
+    <p class="travel_name">돌아오는 교통 수단</p>
+    <input type="text"/>
+
+    <div class="button-container">
+      <button class="prev-button" onclick="goToStep(2)">이전 단계</button>
+      <button class="next-button" onclick="goToStep(4)">다음 단계</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 4 ========== -->
+  <div class="popup-step" id="popup-step4">
+    <h2>아래 정보를 입력해주세요 !</h2>
+    <p class="normal"><span class="username">연양갱</span> 님의 여행 계획표를 생성합니다</p>
+    <p class="travel_name">숙소 1</p>
+    <input type="text"/>
+    <p class="travel_name">숙소 2</p>
+    <input type="text"/>
+
+  <div class="button-container">
+    <button class="prev-button" onclick="goToStep(3)">이전 단계</button>
+    <button class="next-button" onclick="goToStep(5)">다음 단계</button>
+  </div>
+</div>
+
+  <!-- ========== STEP 5 ========== -->
+  <div class="popup-step" id="popup-step5" >
+    <h2 id="result-title"></h2>
+    <p id="result-date" ></p>
+
+    <div class="info-bar" >
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+        <span id="result-transport-go"></span>
+        <span id="result-lodging-1"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span id="result-transport-return"></span>
+        <span id="result-lodging-2"></span>
+      </div>
+    </div>
+
+    <table class="plan-table" style="width: 100%; table-layout: fixed; border-collapse: collapse; background: white; border: none; border-radius: 8px; overflow: hidden;">
+      <colgroup id="col-width-group"></colgroup>
+      <thead>
+        <tr id="date-header-row" style= "color: #BC6BB8; font-weight: bold; font-size : 24px;" ></tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <p style = "color:#686868; font-size:14px; text-align: right;">칸을 눌러 여행 일정을 입력해보세요!</p>
+    <button onclick="resetPopup()" id="refresh-button">🔄</button>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <div class="footer">
+    <div class="footer-text">© 2025 TO-DO to TAKE-OFF. Created by Team 02.</div>
+  </div>
+
+<script>
+  // js 페이지 내용 검증
+  function openPopup() {
+    document.querySelector('.empty-plan').style.display = 'none';
+    goToStep(1);
+  }
+
+  // js 페이지 내용 검증
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+      this.classList.add('open');
+    });
+  });
+
+  // js 페이지 내용 검증
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+  });
+
+  function resetPopup() {
+    document.getElementById('popup-step5').style.display = 'none';
+    document.querySelector('.empty-plan').style.display = 'none';
+    goToStep(1);
+  }
+
+  function goToStep(step) {
+    document.querySelectorAll('.popup-step').forEach(p => p.style.display = 'none');
+
+    if (step === 5) {
+      // js 페이지 내용 검증
+      const popup4Inputs = document.querySelectorAll('#popup-step4 input');
+      travelData.lodging1 = popup4Inputs[0].value;
+      travelData.lodging2 = popup4Inputs[1].value;
+
+      const step1Input = document.querySelector('#popup-step1 input');
+      const step2Input1 = document.querySelector('#depart');
+      const step2Input2 = document.querySelector('#arrive');
+      const step3Inputs = document.querySelectorAll('#popup-step3 input');
+
+      travelData.name = step1Input.value;
+      travelData.startDate = step2Input1.value;
+      travelData.endDate = step2Input2.value;
+      travelData.goTransport = step3Inputs[0].value;
+      travelData.returnTransport = step3Inputs[1].value;
+
+      generatePlanTable(travelData);
+
+      const step5 = document.getElementById('popup-step5');
+      if (step5) step5.style.display = 'block';
+    } else {
+      const target = document.getElementById(`popup-step${step}`);
+      if (target) target.style.display = 'block';
+    }
+    fromReset = false;
+  }
+
+  let fromReset = false;
+
+  let travelData = {
+    name: '',
+    startDate: '',
+    endDate: '',
+    goTransport: '',
+    returnTransport: '',
+    lodging1: '',
+    lodging2: '',
+  };
+
+  function generatePlanTable(data) {
+    const container = document.getElementById('popup-step5');
+    document.getElementById('result-title').innerText = `${data.name}`;
+    document.getElementById('result-date').innerText = `${data.startDate} ~ ${data.endDate}`;
+    document.getElementById('result-transport-go').innerText = `가는 교통편: ${data.goTransport}`;
+    document.getElementById('result-transport-return').innerText = `오는 교통편: ${data.returnTransport}`;
+    document.getElementById('result-lodging-1').innerText = `숙소1: ${data.lodging1}`;
+    document.getElementById('result-lodging-2').innerText = `숙소2: ${data.lodging2}`;
+
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+    const dateList = [];
+    const formatter = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+    while (start <= end) {
+      dateList.push(formatter.format(start));
+      start.setDate(start.getDate() + 1);
+    }
+
+    const dateHeader = document.getElementById('date-header-row');
+    const tbody = document.querySelector('#popup-step5 tbody');
+    const colGroup = document.getElementById('col-width-group');
+
+    dateHeader.innerHTML = '';
+    colGroup.innerHTML = '';
+    tbody.innerHTML = '';
+
+    dateList.forEach(date => {
+      dateHeader.innerHTML += `
+        <th colspan="2" style="padding: 14px; background-color: #f2f2f5; border: 1px solid #ddd; font-weight: bold;">
+          ${date}
+        </th>
+      `;
+      colGroup.innerHTML += `
+        <col style="width: 15%;">
+        <col style="width: 35%;">
+      `;
+    });
+
+    const ROW_COUNT = 6;
+
+    for (let row = 0; row < ROW_COUNT; row++) {
+      const tr = document.createElement('tr');
+      dateList.forEach(() => {
+        tr.innerHTML += `
+          <td style="border: 1px solid #eee; padding: 6px;">
+            <input type="text" placeholder="시간" style="width: 100%; border: none; padding: 6px;" />
+          </td>
+        `;
+        tr.innerHTML += `
+          <td style="border: 1px solid #eee; padding: 6px;">
+            <input type="text" placeholder="일정 내용" style="width: 100%; border: none; padding: 6px;" />
+          </td>
+        `;
+      });
+      tbody.appendChild(tr);
+    }
+
+    container.style.display = 'block';
+  }
+
+  // 쿠키 사용자/비회원 구분
+  window.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark-mode");
+    }
+
+    const color = localStorage.getItem("fontColor");
+    if (color) {
+      document.body.style.color = color;
+    }
+
+    const font = localStorage.getItem("fontFamily");
+    if (font) {
+      document.body.style.fontFamily = font;
+    }
+  });
+
+  //메뉴바 요일별 파일 매핑 (일: 0, 월: 1, ..., 토: 6)
+  const dayToFile = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const dailyLink = document.getElementById('go-daily');
+
+    dailyLink.addEventListener('click', (e) => {
+      e.preventDefault(); // 기본 링크 이동 막기
+
+      const today = new Date();
+      const dayIndex = today.getDay(); // 0 ~ 6
+      const fileSuffix = dayToFile[dayIndex]; // 예: 'wed'
+      const url = `planner_daily_${fileSuffix}.html`;
+
+      window.location.href = url;
+    });
+  });
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
