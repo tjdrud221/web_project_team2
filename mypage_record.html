@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TO-DO & TAKE-OFF</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background-color: #f9f9fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .top-bar {
+      position: absolute; top: 20px; left: 50px;
+      font-size: 36px;
+    }
+
+    .top-bar .highlight {
+      font-weight: 900;
+      font-style: italic;
+      color: #BC6BB8;
+    }
+
+    .top-bar .amp {
+      font-style: normal;
+      color: #656565;
+      font-weight: 700;
+    }
+
+    nav {
+      background: #fff;
+      padding: 28px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+
+    .nav-item {
+      position: relative;
+      padding: 0 30px;
+    }
+
+    .nav-item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 60%;
+      background-color: #ccc;
+    }
+
+    .nav-links span,
+    .nav-links a,
+    .dropdown div a {
+      color: #656565;
+      font-size: 28px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav-item span {
+      cursor: pointer;
+    }
+
+    .nav-item.active > a > span {
+      color: #BC6BB8;
+    }
+
+    .nav-item:hover .dropdown,
+    .nav-item:focus-within .dropdown {
+      display: flex;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 3px solid #eeeeee;
+      padding: 10px 16px;
+      border-radius: 12px;
+      z-index: 10;
+      flex-direction: row;
+      gap: 0;
+      pointer-events: auto;
+    }
+
+    .dropdown div {
+      padding: 0 12px;
+      position: relative;
+    }
+
+    .dropdown div:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 1px;
+      background-color: #ccc;
+    }
+
+    .dropdown div a {
+      font-size: 22px;
+      white-space: nowrap;
+      display: inline-block;
+      padding: 4px 0;
+    }
+
+    .dropdown div:hover a,
+    a:hover {
+      color: #BC6BB8;
+    }
+
+    .content {
+      flex: 1;
+      min-height: calc(100vh - 75px);  
+      padding-top: 60px;
+      padding-bottom: 60px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .container {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0;
+      gap: 40px;
+    }
+
+    aside {
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .profile-card,
+    .memo-box {
+      background: #F3E8F4;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px #cecece;
+    }
+
+    .profile-card {
+      width: 283px;
+      height: 349px;
+    }
+    .profile-card p {
+        margin: 0;
+    }
+
+    .profile-card #email {
+      margin-top: 10px;
+      margin-bottom: 25px;
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 40px auto 25px auto;
+      display: block;
+    }
+
+    .memo-box {
+      background: white;
+      border-left: 5px solid #cc99d9;
+      text-align: left;
+      width: 283px;
+      height: 146px;
+    }
+
+    .memo-box h3 {
+      color: #BC6BB8;
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .achieve-box {
+      background: #FFFFFF;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px #cecece;
+      width: 283px;
+      height: 229px;
+    }
+
+    .achieve-box h3 {
+      color: #BC6BB8;
+      margin-top: 20px;
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 27px;
+      background: #E4E4E4;
+      border-radius: 45px;
+      margin-top: 35px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 70%;
+      background: #D3B2D5;
+      border-radius: 45px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      margin: 0 50px;
+    }
+
+    .summary-box {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .summary-box h3 {
+      color: #BC6BB8;
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .summary-box .percentage {
+      font-size: 30px;
+      font-weight: bold;
+      color: #333;
+      text-align: left;
+    }
+
+    canvas {
+      margin-top: 20px;
+      width: 100%;
+      height: 200px;
+    }
+
+    .footer {
+      height: 75px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4%;
+      margin-top: auto; 
+    }
+
+    .footer-text {
+      font-size: 20px;
+      color: #797878;
+    }
+
+    /*  다크모드 스타일  */
+    body.dark-mode {
+      background-color: #908f8f;
+      color: #EAEAEA;
+    }
+
+    body.dark-mode .top-bar .amp {
+      color: #EAEAEA; 
+    }
+    
+    body.dark-mode nav,
+    body.dark-mode .dropdown,
+    body.dark-mode .profile-card,
+    body.dark-mode .memo-box,
+    body.dark-mode .achieve-box,
+    body.dark-mode .summary-box,
+    body.dark-mode .footer {
+      background-color: #605f5f !important;
+      color: #EAEAEA !important;
+      box-shadow: none !important;
+    }
+
+    body.dark-mode .top-bar .highlight,
+    body.dark-mode .nav-item.active > a > span,
+    body.dark-mode .dropdown div:hover a,
+    body.dark-mode a:hover,
+    body.dark-mode .memo-box h3,
+    body.dark-mode .achieve-box h3,
+    body.dark-mode .summary-box h3 {
+      color: #BC6BB8 !important;
+    }
+
+    body.dark-mode .memo-box {
+      border-left: 5px solid #BC6BB8;
+    }
+
+    body.dark-mode textarea::placeholder,
+    body.dark-mode input::placeholder {
+      color: #EAEAEA !important;
+      opacity: 1; 
+    }
+
+    body.dark-mode .nav-links span,
+    body.dark-mode .nav-links a,
+    body.dark-mode .dropdown div a {
+      color: #EAEAEA !important;
+    }
+
+    body.dark-mode .progress-bar {
+      background-color: #999999;
+    }
+
+    body.dark-mode .progress-fill {
+      background-color: #D3B2D5; /*성취도 바 색상*/
+    }
+
+    body.dark-mode textarea,
+    body.dark-mode input,
+    body.dark-mode select {
+      background-color: #979595;
+      color: #EAEAEA;
+      border: 1px solid #ccc;
+    }
+
+    body.dark-mode .percentage {
+      color: #efc4f1; /*퍼센티지 색상*/
+    }
+
+    body.dark-mode .footer-text {
+      color: #ccc !important;
+    }
+
+    /* 데스크탑 전용 반응형 */
+    @media (min-width: 1025px) {
+      .top-bar {
+        font-size: 36px;
+        left: 50px;
+      }
+
+      .nav-links span,
+      .nav-links a,
+      .dropdown div a {
+        font-size: 28px;
+      }
+
+      .profile-card,
+      .memo-box,
+      .achieve-box {
+        width: 283px;
+      }
+
+      .summary-box h3 {
+        font-size: 24px;
+      }
+
+      .summary-box .percentage {
+        font-size: 30px;
+      }
+
+      .footer-text {
+        font-size: 20px;
+      }
+    }
+
+    /* 태블릿 전용 반응형 */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .top-bar {
+        font-size: 30px;
+        left: 30px;
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      nav {
+        flex-direction: column;
+        padding: 24px;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .nav-item {
+        padding: 12px 0;
+        width: 100%;
+      }
+
+      .nav-links span,
+      .nav-links a,
+      .dropdown div a {
+        font-size: 22px;
+      }
+
+      .container {
+        flex-direction: column;
+        gap: 40px;
+        padding: 20px;
+      }
+
+      aside,
+      main {
+        width: 100%;
+      }
+
+      .profile-card,
+      .memo-box,
+      .achieve-box {
+        width: 100%;
+        height: auto;
+      }
+
+      .summary-box {
+        width: 100%;
+        padding: 20px;
+      }
+
+      .summary-box h3 {
+        font-size: 22px;
+      }
+
+      .summary-box .percentage {
+        font-size: 26px;
+      }
+
+      canvas {
+        height: 180px;
+      }
+
+      .footer {
+        justify-content: center;
+        padding-right: 0;
+        text-align: center;
+      }
+
+      .footer-text {
+        font-size: 18px;
+      }
+    }
+
+    /* 스마트폰 전용 반응형 */
+    @media (max-width: 767px) {
+      .top-bar {
+        font-size: 24px;
+        position: static;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+
+      nav {
+        flex-direction: column;
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .nav-item {
+        padding: 10px 0;
+        width: 100%;
+      }
+
+      .nav-links span,
+      .nav-links a,
+      .dropdown div a {
+        font-size: 18px;
+      }
+
+      .container {
+        flex-direction: column;
+        gap: 30px;
+        padding: 16px;
+      }
+
+      aside,
+      main {
+        width: 100%;
+      }
+
+      .profile-card,
+      .memo-box,
+      .achieve-box {
+        width: 100%;
+        height: auto;
+      }
+
+      .summary-box {
+        width: 100%;
+        padding: 16px;
+      }
+
+      .summary-box h3 {
+        font-size: 20px;
+      }
+
+      .summary-box .percentage {
+        font-size: 24px;
+      }
+
+      canvas {
+        height: 160px;
+      }
+
+      .footer {
+        justify-content: center;
+        padding-right: 0;
+        text-align: center;
+      }
+
+      .footer-text {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <nav>
+    <a href="main.html">
+      <div class="top-bar">
+        <span class="highlight">TO-DO</span>
+        <span class="amp">&amp;</span>
+        <span class="highlight">TAKE-OFF</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <div class="nav-item"><a href="calendar.html"><span>Calendar</span></a></div>
+      <div class="nav-item">
+        <a href="#"><span>Planner</span></a>
+        <div class="dropdown">
+          <div><a href="planner_weekly.html">Weekly</a></div>
+          <div><a href="#" id="go-daily">Daily</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>Travel</span></a>
+        <div class="dropdown">
+          <div><a href="travel_prepare.html">Prepare</a></div>
+          <div><a href="travel_explore.html">Explore</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>My Page</span></a>
+        <div class="dropdown">
+          <div><a href="mypage_record.html">Record</a></div>
+          <div><a href="mypage_setting.html">Setting</a></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <div class="container">
+      <!-- LEFT COLUMN -->
+      <aside>
+        <div class="profile-card">
+          <img src="profile.jpg" alt="Profile Image" class="profile-img" />
+          <p style="font-size: 20px;"><strong id="sidebar-nickname">연양갱</strong></p>
+          <p id="user-email">123@sookmyung.ac.kr</p>
+          <p id="user-motto">매일매일을 작은 여행처럼 살아보기</p>
+        </div>
+        <div class="memo-box">
+          <h3>MEMO</h3>
+          <textarea id="memo-input" rows="2" 
+          placeholder="메모를 입력하세요" 
+          style="width: 100%; resize: none; font-size: 16px; padding: 6px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+        </div>
+        <div class="achieve-box">
+          <h3>achieve</h3>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <p class="achieve-percent">32%</p>
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN -->
+      <main>
+        <div class="summary-box">
+          <h3>Weekly achieve</h3>
+          <div class="percentage" id="weekly-percent">0%</div>
+          <canvas id="weeklyChart"></canvas>
+        </div>
+        <div class="summary-box">
+          <h3>Monthly achieve</h3>
+          <div class="percentage" id="monthly-percent">0%</div>
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-text">© 2025 TO-DO to TAKE-OFF. Created by Team 02.</div>
+  </div>
+
+  <script>
+    // nav 메뉴 열기
+    document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+      this.classList.add('open');
+      });
+    });
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+    });
+
+    // 쿠키 가져오기 함수
+    function getCookie(name) {
+      const cookies = document.cookie.split("; ");
+      for (let c of cookies) {
+        const [key, value] = c.split("=");
+        if (key === name) return decodeURIComponent(value);
+      }
+      return null;
+    }
+
+    // 주간 성취도 계산
+    function getThisWeekDates() {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7)); 
+
+      const dates = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+        dates.push(date.toISOString().slice(0, 10)); 
+      }
+      return dates;
+    }
+
+    function getWeeklyAchieveData(nickname) {
+      const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+      const result = [];
+
+      for (let day of days) {
+        const key = `todoList_${nickname}@sookmyung.ac.kr_${day}`;
+        const items = JSON.parse(localStorage.getItem(key) || "[]");
+        const total = items.length;
+        const done = items.filter(item => item.done).length;
+        result.push(total ? Math.round((done / total) * 100) : 0);
+      }
+      return result;
+    }
+
+    // 월간 성취도 불러오기
+    function getMonthlyAchieve(nickname) {
+      return localStorage.getItem(`monthlyAchieve_${nickname}`) || 0;
+    }
+
+    // 연간 성취도 불러오기 (월별)
+    function getYearlyAchieveData(nickname, year) {
+      const data = localStorage.getItem(`yearlyAchieve_${nickname}`);
+      return data ? JSON.parse(data) : {};
+    }
+
+    // aside 성취도 퍼센트 반영
+    function updateAsideProgress() {
+      const nickname = decodeURIComponent(getCookie("nickname"));
+      if (!nickname) return;
+
+      let total = 0;
+      let done = 0;
+
+      for (let key in localStorage) {
+        if (key.startsWith("todoList_")) {
+          const parts = key.split("_");
+          if (parts.length < 3) continue;
+
+          const nick = parts[1];
+          if (nick !== nickname) continue;
+
+          const items = JSON.parse(localStorage.getItem(key) || "[]");
+          total += items.length;
+          done += items.filter(item => item.checked || item.done).length;
+        }
+      }
+
+      const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+
+      const fill = document.querySelector(".progress-fill");
+      const label = document.querySelector(".achieve-box p");
+
+      if (fill) fill.style.width = `${percent}%`;
+      if (label) label.textContent = `${percent}%`;
+    }
+
+    // 주간 퍼센트 텍스트 업데이트
+    function updateWeeklyPercentDisplay(nickname) {
+      const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+      let total = 0, checked = 0;
+
+      for (let day of days) {
+        const key = `todoList_${nickname}@sookmyung.ac.kr_${day}`;
+        const items = JSON.parse(localStorage.getItem(key) || "[]");
+        total += items.length;
+        checked += items.filter(item => item.done).length;
+      }
+
+      const percent = total ? Math.round((checked / total) * 100) : 0;
+      const label = document.getElementById("weekly-percent");
+      if (label) label.textContent = `${percent}%`;
+    }
+
+    // 월간 퍼센트 텍스트 업데이트
+    function updateMonthlyPercentDisplay(nickname) {
+      const percent = localStorage.getItem(`monthlyAchieve_${nickname}`) || 0;
+      const label = document.getElementById("monthly-percent");
+      if (label) label.textContent = `${percent}%`;
+    }
+
+    // 쿠키 사용자/비회원 구분
+    window.addEventListener("DOMContentLoaded", () => {
+
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+      const isDarkMode = document.body.classList.contains('dark-mode'); //다크모드 여부 판단 변수 
+
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      const nickname = getCookie("nickname");
+      const email = localStorage.getItem("userEmail");
+      const motto = getCookie("motto");
+
+      if (nickname) {
+        document.getElementById("sidebar-nickname").textContent = nickname;
+      }
+
+      if (email) {
+        document.getElementById("user-email").textContent = email;
+      }
+
+      if (motto) {
+        document.getElementById("user-motto").textContent = motto;
+      }
+
+      // 글씨 색상 적용
+      const color = localStorage.getItem("fontColor");
+      if (color) {
+        document.body.style.color = color;
+      }
+
+      // 글씨체 적용
+      const font = localStorage.getItem("fontFamily");
+      if (font) {
+        document.body.style.fontFamily = font;
+      }
+
+      if (nickname) {
+        // 주간 그래프 렌더링
+        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+        new Chart(weeklyCtx, {
+          type: 'bar',
+          data: {
+            labels: ['월', '화', '수', '목', '금', '토', '일'],
+            datasets: [{
+              label: '달성도',
+              data: getWeeklyAchieveData(nickname),
+              backgroundColor: '#c891d1',
+              borderRadius: 5
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  color: isDarkMode ? '#EAEAEA' : '#333'
+                },
+                grid: {
+                  color: isDarkMode ? '#777' : '#ccc'
+                }
+              },
+              x: {
+                ticks: {
+                  color: isDarkMode ? '#EAEAEA' : '#333'
+                },
+                grid: {
+                  color: isDarkMode ? '#777' : '#ccc'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: isDarkMode ? '#EAEAEA' : '#333'
+                }
+              }
+            }
+          }
+
+        });
+
+        // 월별 성취도 라인 그래프 렌더링
+        const year = new Date().getFullYear();
+        const yearlyAchieve = getYearlyAchieveData(nickname, year);
+        const monthlyLabels = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+        const monthlyValues = monthlyLabels.map((_, i) => {
+          const key = String(i + 1).padStart(2, '0');
+          return yearlyAchieve[key] ?? 0;
+        });
+
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        new Chart(monthlyCtx, {
+          type: 'line',
+          data: {
+            labels: monthlyLabels,
+            datasets: [{
+              label: '월별 달성도',
+              data: monthlyValues,
+              backgroundColor: 'rgba(200,145,209,0.3)',
+              borderColor: '#c891d1',
+              tension: 0.3,
+              fill: true
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  color: isDarkMode ? '#EAEAEA' : '#333'
+                },
+                grid: {
+                  color: isDarkMode ? '#777' : '#ccc'
+                }
+              },
+              x: {
+                ticks: {
+                  color: isDarkMode ? '#EAEAEA' : '#333'
+                },
+                grid: {
+                  color: isDarkMode ? '#777' : '#ccc'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: isDarkMode ? '#EAEAEA' : '#333'
+                }
+              }
+            }
+          }
+
+        });
+
+        updateAsideProgress();
+        updateWeeklyPercentDisplay(nickname);
+        updateMonthlyPercentDisplay(nickname);
+      }
+    });
+
+    //메뉴바 요일별 파일 매핑
+    const dayToFile = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dailyLink = document.getElementById('go-daily');
+
+      dailyLink.addEventListener('click', (e) => {
+        e.preventDefault(); 
+
+        const today = new Date();
+        const dayIndex = today.getDay();
+        const fileSuffix = dayToFile[dayIndex]; 
+        const url = `planner_daily_${fileSuffix}.html`;
+
+        window.location.href = url;
+      });
+
+      updateAsideProgress();
+    });
+
+    ///메모 저장
+    const MEMO_KEY = "sharedMemo";
+
+    // 메모 저장 함수
+    function saveMemo() {
+      const memoInput = document.getElementById("memo-input");
+      if (memoInput) {
+        localStorage.setItem(MEMO_KEY, memoInput.value);
+      }
+    }
+
+    // 메모 불러오기 함수
+    function loadMemo() {
+      const savedMemo = localStorage.getItem(MEMO_KEY);
+      const memoInput = document.getElementById("memo-input");
+      if (memoInput && savedMemo !== null) {
+        memoInput.value = savedMemo;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadMemo();
+
+      const memoInput = document.getElementById("memo-input");
+      if (memoInput) {
+        memoInput.addEventListener("input", saveMemo);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TO-DO & TAKE-OFF</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background-color: #f9f9fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--user-font, 'Noto Sans KR', sans-serif);
+    }
+
+    body.dark-mode {
+      background-color: #1e1e1e;
+      color: #eee;
+    }
+    
+    .top-bar {
+      position: absolute; 
+      top: 20px; 
+      left: 50px;
+      font-size: 36px;
+    }
+
+    .top-bar .highlight { 
+      font-weight: 900; 
+      font-style: italic; 
+      color: #BC6BB8; 
+    }
+
+    .top-bar .amp { 
+      font-style: normal; 
+      color: #656565; 
+      font-weight: 700; 
+    }
+
+    nav {
+      background: #fff; 
+      padding: 28px 50px;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      position: relative; 
+      flex-wrap: wrap;
+    }
+    .nav-links {
+      display: flex; 
+      gap: 0; 
+      flex-wrap: wrap;
+    }
+    .nav-item {
+      position: relative;
+      padding: 0 30px;
+    }
+    .nav-item:not(:last-child)::after {
+      content: ""; 
+      position: absolute; 
+      right: 0; 
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px; 
+      height: 60%; 
+      background-color: #ccc;
+    }
+    .nav-links span, .nav-links a, .dropdown div a {
+      color: #656565; 
+      font-size: 28px; 
+      text-decoration: none; 
+      cursor: pointer;
+    }
+    .nav-item span { cursor: pointer; }
+    .nav-item.active > a > span {
+      color: #BC6BB8;
+    }
+
+    .nav-item:hover .dropdown,
+    .nav-item:focus-within .dropdown {
+      display: flex;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 3px solid #eeeeee;
+      padding: 10px 16px;
+      border-radius: 12px;
+      z-index: 10;
+      flex-direction: row;
+      gap: 0;
+      pointer-events: auto;
+    }
+    .dropdown div {
+      padding: 0 12px; 
+      position: relative;
+    }
+    .dropdown div:not(:last-child)::after {
+      content: ""; 
+      position: absolute; 
+      right: 0; 
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%; 
+      width: 1px; 
+      background-color: #ccc;
+    }
+    .dropdown div a {
+      font-size: 22px; 
+      white-space: nowrap;
+      display: inline-block; 
+      padding: 4px 0;
+    }
+    .dropdown div:hover a, a:hover {
+      color: #BC6BB8;
+    }
+
+    .content {
+      flex: 1;
+      min-height: calc(100vh - 75px);  
+      padding-top: 60px;
+      padding-bottom: 60px;
+      display: flex;
+      align-items: center; 
+      justify-content: center;  
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center; 
+      max-width: 1200px;
+      padding-left: 50px;
+      padding-right: 50px; 
+      gap: 40px;
+    }
+
+    aside {
+      width: 250px;
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .profile-card, .memo-box {
+      background: #F3E8F4;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px #cecece;
+    }
+
+    .achieve-box {
+      background: #FFFFFF;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px #cecece;
+    }
+
+    .profile-card {
+      width:  283px;
+      height : 349px;
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 40px auto 25px auto;
+      display: block;
+    }
+
+
+    #email {
+      margin-top:10px;
+      margin-bottom : 25px;
+    }
+
+    .memo-box {
+      background: white;
+      border-left: 5px solid #cc99d9;
+      text-align: left;
+      width: 283px;
+      height: 146px;
+    }
+
+    .memo-box h3 {
+      color: #BC6BB8;
+      margin-bottom: 10px;
+      font-size : 24px;
+      font-weight : bold;
+    }
+
+    .achieve-box h3 {
+      color: #BC6BB8;
+      margin-top: 20px;
+      font-size : 36px;
+      font-weight : bold;
+    }
+
+    .achieve-box {
+      width: 283px;
+      height: 229px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 27px;
+      background: #E4E4E4;
+      border-radius: 45px;
+      margin-top : 35px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 70%;
+      background: #D3B2D5;
+      border-radius: 45px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin: 0 50px;
+    }
+
+    .form-row.column {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-row.vertical-links {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .form-box, .setting-box {
+      background: white;
+      padding: 30px;
+      width: 550px;
+      height: 764px;
+      border-radius: 15px;
+      padding: 0px 60px;
+      flex: 1;
+      box-shadow: 0 4px 8px #cecece;
+    }
+
+    .form-box h2, .setting-box h2 {
+      font-size: 32px;
+      color: #000000;
+      font-weight: 500;
+      text-align: center;
+      margin-top: 70px;
+      margin-bottom: 70px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 35px;
+      gap: 10px;
+      justify-content: flex-start; 
+    }
+
+    .form-row.column {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-row.horizontal-links {
+      justify-content: flex-start;
+      gap: 20px;
+    }
+
+    .form-row label {
+      min-width: 140px;
+      font-weight: 500;
+      font-size: 20px;
+      color: #2d2d2d;
+    }
+
+    .form-row select,
+    .form-row p,
+    .form-row .toggle-wrapper {
+      flex: none;
+      font-size: 20px;
+      color: #2d2d2d;
+    }
+
+    .form-row input {
+      flex: unset;             
+      width: 350px;            
+      height: 45px;          
+      padding: 0 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    #line_text {
+      height: 50px;
+      width : 418px;
+      border: none;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      font-size: 16px;
+      padding: 0 10px;
+    }
+
+    .btn-save {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #D3B2D5;
+      border: none;
+      width : 412px;
+      height : 60px;
+      border-radius: 15px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 24px;
+    }
+
+    .toggle-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 50px !important;  
+      height: 30px !important;    
+      margin-right: auto;  
+    }
+
+    .toggle-wrapper input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 60px;
+      bottom: 0;
+      background-color: #ccc;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.4s;
+      overflow: hidden;
+    }
+
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      height: 24px;
+      width: 24px;
+      left: 3px;
+      top: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+
+    .toggle-wrapper input:checked + .toggle-slider {
+      background-color: #666;
+    }
+
+    .toggle-wrapper input:checked + .toggle-slider::before {
+      transform: translateX(30px); 
+    }
+
+    .color-picker {
+      width: 80px !important;        
+      height: 40px !important;     
+    }
+
+    .footer {
+      height: 75px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4%;
+      margin-top: auto; 
+    }
+
+    .footer-text {
+      font-size: 20px;
+      color: #797878;
+    }
+
+    .etc-links a {
+      text-decoration: none;
+      font-size: 20px;
+      color: #2d2d2d;
+    }
+
+    .etc-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* 다크모드 */
+    body.dark-mode {
+      background-color: #908f8f;
+      color: #EAEAEA;
+    }
+
+    body.dark-mode .top-bar .amp {
+      color: #EAEAEA; 
+    }
+
+    body.dark-mode .nav-links span,
+    body.dark-mode .nav-links a,
+    body.dark-mode .dropdown div a {
+      color: #EAEAEA; 
+    }
+
+    body.dark-mode .form-box h2,
+    body.dark-mode .setting-box h2,
+    body.dark-mode .form-row label,
+    body.dark-mode .form-row p,
+    body.dark-mode .form-row select,
+    body.dark-mode .btn-save,
+    body.dark-mode .etc-links a,
+    body.dark-mode .form-row .toggle-wrapper {
+      color: #EAEAEA !important;
+    }
+
+    body.dark-mode .btn-save {
+      background-color: #BC6BB8;
+      color: #1e1e1e; /* 버튼 내부 글자색 */
+    }
+
+    body.dark-mode nav,
+    body.dark-mode .dropdown,
+    body.dark-mode .form-box,
+    body.dark-mode .setting-box,
+    body.dark-mode .memo-box,
+    body.dark-mode .achieve-box,
+    body.dark-mode .profile-card,
+    body.dark-mode .footer {
+      background-color: #605f5f; /*박스 색상*/
+      color: #EAEAEA;
+      box-shadow: none;
+    }
+
+    body.dark-mode .top-bar .highlight,
+    body.dark-mode .nav-item.active > a > span,
+    body.dark-mode .dropdown div:hover a,
+    body.dark-mode a:hover,
+    body.dark-mode .memo-box h3,
+    body.dark-mode .achieve-box h3 {
+      color: #BC6BB8; /* 포인트 색상 */
+    }
+
+    body.dark-mode .memo-box {
+      border-left: 5px solid #BC6BB8;
+    }
+
+    body.dark-mode .progress-bar {
+      background-color: #999999;
+    }
+
+    body.dark-mode .progress-fill {
+      background-color: #D3B2D5; /*성취도 바 색상*/
+    }
+
+    body.dark-mode input,
+    body.dark-mode textarea,
+    body.dark-mode select {
+      background-color: #979595; /*각 박스 내 입력 바 색상*/
+      color: #EAEAEA;
+      border: 1px solid #ccc;
+    }
+
+    body.dark-mode .btn-save {
+      background-color: #BC6BB8;
+      color: #1e1e1e;
+    }
+
+    body.dark-mode .toggle-slider {
+      background-color: #888;
+    }
+
+    body.dark-mode .toggle-wrapper input:checked + .toggle-slider {
+      background-color: #BC6BB8;
+    }
+
+    body.dark-mode .toggle-slider::before {
+      background-color: #EAEAEA;
+    }
+
+    body.dark-mode .footer-text,
+    body.dark-mode .etc-links a {
+      color: #EAEAEA;
+    }
+
+    body.dark-mode textarea::placeholder {
+      color: #fffdfd;
+      opacity: 1;
+    }
+
+    body.dark-mode #line_text {
+      background-color: #555;
+      color: #EAEAEA;
+      border: 1px solid #ccc;
+    }
+
+    body.dark-mode #line_text::placeholder {
+      color: #dddddd;
+    }
+
+    textarea {
+      font-family: var(--user-font, 'Noto Sans KR', sans-serif);
+    }
+
+    /* 데스크탑 전용 반응형 */
+    @media (min-width: 1025px) {
+      .top-bar {
+        font-size: 36px;
+        left: 50px;
+      }
+
+      .nav-links span,
+      .nav-links a,
+      .dropdown div a {
+        font-size: 28px;
+      }
+
+      .container {
+        gap: 100px;
+      }
+
+      .setting-left,
+      .setting-right {
+        width: 350px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .button {
+        font-size: 18px;
+      }
+
+      .footer-text {
+        font-size: 20px;
+      }
+    }
+
+    /* 태블릿 전용 반응형 */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .top-bar {
+        font-size: 30px;
+        left: 30px;
+        top: 16px;
+      }
+
+      nav {
+        flex-direction: column;
+        padding: 24px;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .nav-item {
+        padding: 12px 0;
+        width: 100%;
+      }
+
+      .nav-links span,
+      .nav-links a,
+      .dropdown div a {
+        font-size: 22px;
+      }
+
+      .container {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+        padding: 24px;
+      }
+
+      .setting-left,
+      .setting-right {
+        width: 80%;
+      }
+
+      .section-title {
+        font-size: 22px;
+      }
+
+      .button {
+        font-size: 16px;
+      }
+
+      .footer {
+        justify-content: center;
+        text-align: center;
+        padding-right: 0;
+      }
+
+      .footer-text {
+        font-size: 18px;
+      }
+    }
+
+    /* 스마트폰 전용 반응형 */
+    @media (max-width: 767px) {
+      .top-bar {
+        font-size: 24px;
+        position: static;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      nav {
+        flex-direction: column;
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .nav-item {
+        padding: 10px 0;
+        width: 100%;
+      }
+
+      .nav-links span,
+      .nav-links a,
+      .dropdown div a {
+        font-size: 18px;
+      }
+
+      .container {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        padding: 16px;
+      }
+
+      .setting-left,
+      .setting-right {
+        width: 100%;
+      }
+
+      .section-title {
+        font-size: 20px;
+        text-align: center;
+      }
+
+      .button {
+        font-size: 14px;
+      }
+
+      .footer {
+        justify-content: center;
+        text-align: center;
+        padding-right: 0;
+      }
+
+      .footer-text {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <nav>
+    <a href="main.html">
+      <div class="top-bar">
+        <span class="highlight">TO-DO</span>
+        <span class="amp">&amp;</span>
+        <span class="highlight">TAKE-OFF</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <div class="nav-item"><a href="calendar.html"><span>Calendar</span></a></div>
+      <div class="nav-item">
+        <a href="#"><span>Planner</span></a>
+        <div class="dropdown">
+          <div><a href="planner_weekly.html">Weekly</a></div>
+          <div><a href="#" id="go-daily">Daily</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>Travel</span></a>
+        <div class="dropdown">
+          <div><a href="travel_prepare.html">Prepare</a></div>
+          <div><a href="travel_explore.html">Explore</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>My Page</span></a>
+        <div class="dropdown">
+          <div><a href="mypage_record.html">Record</a></div>
+          <div><a href="mypage_setting.html">Setting</a></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- BODY -->
+  <div class="content">
+    <div class="container">
+      <aside>
+        <div class="profile-card">
+          <img src="profile.jpg" alt="Profile Image" class="profile-img" />
+          <p style="font-size: 20px;"><strong id="sidebar-nickname">연양갱</strong></p>
+          <p id="user-email">123@sookmyung.ac.kr</p>
+          <p id="user-motto">매일매일을 작은 여행처럼 살아보기</p>
+        </div>
+        <div class="memo-box">
+          <h3>MEMO</h3>
+          <textarea id="memo-input" rows="2" 
+          placeholder="메모를 입력하세요" 
+          style="width: 100%; resize: none; font-size: 16px; padding: 6px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+        </div>
+        <div class="achieve-box">
+          <h3>achieve</h3>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <p class="achieve-percent">32%</p>
+        </div>
+      </aside>
+
+      <main>
+        <div class="form-box">
+          <h2>프로필 수정</h2>
+          <div class="form-row"><label>현재 닉네임</label><p id="main-nickname">연양갱</p></div>
+          <div class="form-row"><label for="new-nick">변경할 닉네임</label><input type="text" id="new-nick" /></div>
+          <div class="form-row"><label>이메일</label><p><strong id="form-email">불러오는 중...</strong></p></div>
+          <div class="form-row column"><label for="current-pw">현재 비밀번호</label><input type="password" id="current-pw" /></div>
+          <div class="form-row column"><label for="new-pw">변경할 비밀번호</label><input type="password" id="new-pw" /></div>
+          <button class="btn-save">저장하기</button>
+        </div>
+        <div class="setting-box">
+          <h2>꾸미기</h2>
+          <div class="form-row column">
+            <label>한줄 각오</label>
+            <input id="line_text" type="text" placeholder="매일매일을 작은 여행처럼 살아보기" />
+          </div>
+          <div class="form-row"><label>다크 모드</label>
+            <label class="toggle-wrapper">
+              <input type="checkbox" id="dark-toggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="form-row"><label>글씨 색상 변경</label><input type="color" id="font-color" class="color-picker" value="#cc66cc" /></div>
+          <div class="form-row"><label>글씨체 변경</label>
+            <select id="font-select">
+              <option value="default">기본 폰트</option>
+              <option value="'Gowun Batang', serif">고운바탕</option>
+              <option value="'Song Myung', serif">송명체</option>
+              <option value="'Hahmlet', sans-serif">함렛</option>
+              <option value="'Gothic A1', sans-serif">고딕 A1</option>
+            </select>
+          </div>
+          <div class="form-row vertical-links etc-links">
+            <a href="#" id="logout-link">로그아웃</a>
+            <a href="#" id="delete-link">회원 탈퇴</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-text">© 2025 TO-DO to TAKE-OFF. Created by Team 02.</div>
+  </div>
+
+  <script>
+    // js 페이지 내용 검증
+    document.querySelectorAll('.nav-item > a').forEach(link => {
+      link.addEventListener('click', function (e) {
+        const parent = this.parentElement;
+        const isDropdown = this.nextElementSibling && this.nextElementSibling.classList.contains('dropdown');
+
+        if (isDropdown) {
+          e.preventDefault();
+          const isOpen = parent.classList.contains('open');
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+          if (!isOpen) parent.classList.add('open');
+        }
+      });
+    });
+
+    // js 페이지 내용 검증
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.nav-item')) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+      }
+    });
+
+    // 다크 모드
+    const darkToggle = document.getElementById("dark-toggle");
+    darkToggle.addEventListener("change", function () {
+      localStorage.setItem("darkMode", this.checked ? "true" : "false");
+      document.body.classList.toggle("dark-mode", this.checked);
+    });
+
+    // 글씨 색상
+    const fontColorPicker = document.getElementById("font-color");
+    fontColorPicker.addEventListener("input", function () {
+      localStorage.setItem("fontColor", this.value);
+      document.body.style.color = this.value;
+    });
+
+    // 로그아웃
+    document.getElementById("logout-link").addEventListener("click", function (e) {
+      e.preventDefault();
+      alert("로그아웃되었습니다.");
+      window.location.href = "login.html";
+    });
+
+    // 회원 탈퇴
+    document.getElementById("delete-link").addEventListener("click", function (e) {
+      e.preventDefault();
+      document.cookie = "username=; max-age=0; path=/";
+      document.cookie = "password=; max-age=0; path=/";
+      document.cookie = "nickname=; max-age=0; path=/";
+      document.cookie = "motto=; max-age=0; path=/";
+      alert("회원 탈퇴가 완료되었습니다.");
+      window.location.href = "login.html";
+    });
+
+    // 쿠키 가져오기 함수
+    function getCookie(name) {
+      const cookies = document.cookie.split("; ");
+      for (let c of cookies) {
+        const [key, value] = c.split("=");
+        if (key === name) return decodeURIComponent(value);
+      }
+      return null;
+    }
+
+    // 쿠키 사용자/비회원 구분
+    function setCookie(name, value, days) {
+      const date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${date.toUTCString()}; path=/`;
+    }
+
+    // js 페이지 내용 검증
+    document.querySelector(".btn-save").addEventListener("click", function (e) {
+      e.preventDefault();
+
+      try {
+        const currentPw = document.getElementById("current-pw").value.trim();
+        const newPw = document.getElementById("new-pw").value;
+        const newNick = document.getElementById("new-nick").value.trim();
+        const savedPw = String(getCookie("password"));
+
+        if (currentPw !== savedPw) {
+          alert("비밀번호가 틀렸습니다. 다시 입력하세요.");
+          return;
+        }
+
+        setCookie("password", newPw, 7);
+
+        if (newNick) {
+          setCookie("nickname", newNick, 7);
+          document.getElementById("main-nickname").textContent = newNick;
+          document.getElementById("sidebar-nickname").textContent = newNick;
+        }
+
+        alert("변경이 완료되었습니다.");
+        document.getElementById("current-pw").value = "";
+        document.getElementById("new-pw").value = "";
+        document.getElementById("new-nick").value = "";
+
+      } catch (err) {
+        console.error("설정 저장 중 오류:", err);
+      }
+    });
+
+    // 쿠키 사용자/비회원 구분
+    document.getElementById("line_text").addEventListener("input", function () {
+      const motto = this.value.trim();
+      document.getElementById("user-motto").textContent = motto;
+      setCookie("motto", motto, 7);
+    });
+
+    // aside 성취도 퍼센트 반영
+    function updateAsideProgress() {
+      const nickname = decodeURIComponent(getCookie("nickname"));
+      if (!nickname) return;
+
+      let total = 0;
+      let done = 0;
+
+      for (let key in localStorage) {
+        if (key.startsWith("todoList_")) {
+          const parts = key.split("_");
+          if (parts.length < 3) continue;
+
+          const nick = parts[1];
+          if (nick !== nickname) continue;
+
+          const items = JSON.parse(localStorage.getItem(key) || "[]");
+          total += items.length;
+          done += items.filter(item => item.checked || item.done).length;
+        }
+      }
+
+      const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+
+      const fill = document.querySelector(".progress-fill");
+      const label = document.querySelector(".achieve-box p");
+
+      if (fill) fill.style.width = `${percent}%`;
+      if (label) label.textContent = `${percent}%`;
+    }
+
+    // DOMContentLoaded 처리
+    window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      const color = localStorage.getItem("fontColor");
+      if (color) document.body.style.color = color;
+
+      const font = localStorage.getItem("fontFamily");
+      const fontSelect = document.getElementById("font-select");
+
+      if (font) {
+        document.body.style.setProperty('--user-font', font);
+        fontSelect.value = font;
+      } else {
+        document.body.style.setProperty('--user-font', "'Noto Sans KR', sans-serif");
+        fontSelect.value = "default";
+      } 
+
+      fontSelect.addEventListener("change", function () {
+        const selected = this.value;
+        if (selected === "default") {
+          localStorage.removeItem("fontFamily");
+          document.body.style.setProperty('--user-font', "'Noto Sans KR', sans-serif");
+        } else {
+          localStorage.setItem("fontFamily", selected);
+          document.body.style.setProperty('--user-font', selected);
+        }
+      });
+
+      const nickname = getCookie("nickname");
+      if (nickname) {
+        document.getElementById("main-nickname").textContent = nickname;
+        document.getElementById("sidebar-nickname").textContent = nickname;
+      }
+
+      const savedMotto = getCookie("motto");
+      if (savedMotto) {
+        document.getElementById("line_text").value = savedMotto;
+        document.getElementById("user-motto").textContent = savedMotto;
+      }
+
+      const email = localStorage.getItem("userEmail");
+      if (email) {
+        document.getElementById("user-email").textContent = email;
+        document.getElementById("form-email").textContent = email;
+      }
+
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === "mypage_setting.html" || currentPage === "mypage_record.html") {
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach(item => {
+          const linkText = item.textContent.trim();
+          if (linkText.includes("My Page")) {
+            item.classList.add("active");
+          }
+        });
+      }
+
+      updateAsideProgress();
+    });
+
+    //메뉴바 요일별 파일 매핑 (일: 0, 월: 1, ..., 토: 6)
+    const dayToFile = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dailyLink = document.getElementById('go-daily');
+
+      dailyLink.addEventListener('click', (e) => {
+        e.preventDefault(); 
+
+        const today = new Date();
+        const dayIndex = today.getDay(); 
+        const fileSuffix = dayToFile[dayIndex]; 
+        const url = `planner_daily_${fileSuffix}.html`;
+
+        window.location.href = url;
+      });
+    });
+
+    ///메모 저장
+      const MEMO_KEY = "sharedMemo";
+
+      // 메모 저장 함수
+      function saveMemo() {
+        const memoInput = document.getElementById("memo-input");
+        if (memoInput) {
+          localStorage.setItem(MEMO_KEY, memoInput.value);
+        }
+      }
+
+      // 메모 불러오기 함수
+      function loadMemo() {
+        const savedMemo = localStorage.getItem(MEMO_KEY);
+        const memoInput = document.getElementById("memo-input");
+        if (memoInput && savedMemo !== null) {
+          memoInput.value = savedMemo;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadMemo();
+        
+        const memoInput = document.getElementById("memo-input");
+        if (memoInput) {
+          memoInput.addEventListener("input", saveMemo);
+        }
+      });
+  </script>
+</body>
+</html>

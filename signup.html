@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>회원가입</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .signup-container {
+      width: 360px;
+      padding: 40px 32px;
+    }
+
+    .title {
+      margin-bottom: 10px;
+    }
+
+    .todo-text {
+      text-align: left;
+      font-size: 50px;
+      font-weight: 900;
+      font-style: italic;
+      color: #b86cc3;
+      margin-left: -130px;
+    }
+
+    .takeoff-text {
+      text-align: right;
+      font-size: 50px;
+      font-weight: 900;
+      font-style: italic;
+      color: #b86cc3;
+      margin-right: -130px;
+      margin-bottom: 103px;
+    }
+
+    .plain-text {
+      font-style: normal;
+      font-weight: 400;
+      color: #555;
+      font-size: 30px;
+      margin-left: 25px;
+    }
+
+    label {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 50px;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      padding: 0 14px;
+      box-sizing: border-box;
+    }
+
+    .form-row input {
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      width: 100%;
+      outline: none;
+    }
+
+    .form-row.email-check {
+      display: flex;
+      gap: 10px;
+      padding: 0;
+      background: none;
+    }
+
+    .form-row.email-check input {
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      padding: 0 14px;
+      height: 50px;
+      border: none;
+      flex: 1;
+    }
+
+    .form-row.email-check button {
+      background-color: #d3b2d5;
+      border: none;
+      border-radius: 15px;
+      padding: 0 12px;
+      height: 50px;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      color: white;
+    }
+
+    .form-row.button {
+      width: 100%;
+      height: 52px;
+      background-color: #d3b2d5;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin-top: 28px;
+    }
+
+    .form-row.button button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+    }
+  
+    /* 다크모드 스타일 */
+    body.dark-mode {
+      background-color: #908f8f;
+      color: #EAEAEA;
+    }
+
+    body.dark-mode .form-row,
+    body.dark-mode .form-row.email-check input,
+    body.dark-mode .form-row.email-check button,
+    body.dark-mode .form-row.button {
+      background-color: #605f5f !important;
+      color: #EAEAEA !important;
+      border: none !important;
+    }
+
+    body.dark-mode .form-row input[type="text"],
+    body.dark-mode .form-row input[type="email"],
+    body.dark-mode .form-row input[type="password"] {
+      color: #EAEAEA !important;
+      background-color: transparent;
+    }
+
+    body.dark-mode label,
+    body.dark-mode .plain-text {
+      color: #CDD6FC !important;
+    }
+
+    body.dark-mode .form-row.email-check button,
+    body.dark-mode .form-row.button button {
+      background-color: #BC6BB8 !important;
+      color: white;
+    }
+
+    body.dark-mode .todo-text,
+    body.dark-mode .takeoff-text {
+      color: #BC6BB8;
+    }
+
+
+    /* 반응형 웹 */
+    @media (max-width: 767px) {
+      nav {
+        padding: 16px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+      }
+
+      .top-bar {
+        font-size: clamp(20px, 5vw, 28px) !important;
+        position: static !important;
+        margin-bottom: 10px !important;
+        text-align: center;
+      }
+
+      .nav-links {
+        flex-direction: column !important;
+        width: 100% !important;
+      }
+
+      .nav-item {
+        padding: 10px 0 !important;
+        width: 100% !important;
+      }
+
+      .container, .section, main, aside, footer {
+        width: 100% !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+      }
+
+      .calendar-day {
+        font-size: clamp(20px, 5vw, 32px) !important;
+      }
+
+      .d-day-text {
+        font-size: clamp(18px, 4vw, 28px) !important;
+      }
+
+      .footer-text {
+        font-size: clamp(12px, 2vw, 16px) !important;
+      }
+
+      .card {
+        padding: 16px !important;
+        font-size: clamp(14px, 3vw, 18px) !important;
+      }
+
+      .title {
+        font-size: clamp(16px, 4vw, 24px) !important;
+      }
+
+      img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+
+      .input-wrapper,
+      .setting-wrapper,
+      .setting-box,
+      .setting-section {
+        flex-direction: column !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        gap: 12px !important;
+        padding: 10px !important;
+      }
+
+      .setting-title {
+        font-size: clamp(18px, 5vw, 24px) !important;
+      }
+
+      .setting-box input,
+      .setting-box select {
+        width: 100% !important;
+        font-size: clamp(14px, 4vw, 18px) !important;
+      }
+
+      .footer {
+        justify-content: center;
+        padding-right: 0;
+        text-align: center;
+      }
+    }
+    
+    /* 태블릿 전용 반응형 */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .signup-container {
+        width: 70%;
+        padding: 40px;
+      }
+
+      .todo-text,
+      .takeoff-text {
+        font-size: 42px;
+        margin-left: 0;
+        margin-right: 0;
+        text-align: center;
+      }
+
+      .plain-text {
+        font-size: 24px;
+        margin-left: 8px;
+      }
+
+      .takeoff-text {
+        margin-bottom: 60px;
+      }
+
+      label {
+        font-size: 15px;
+      }
+
+      .form-row {
+        height: 48px;
+      }
+
+      .form-row input {
+        font-size: 15px;
+      }
+
+      .form-row.email-check input {
+        height: 48px;
+      }
+
+      .form-row.email-check button {
+        height: 48px;
+        font-size: 13px;
+        padding: 0 10px;
+      }
+
+      .form-row.button {
+        height: 50px;
+      }
+
+      .form-row.button button {
+        font-size: 20px;
+      }
+    }
+
+    /* 스마트폰 전용 반응형 */
+    @media (max-width: 767px) {
+      .signup-container {
+        width: 90%;
+        padding: 30px 20px;
+      }
+
+      .todo-text,
+      .takeoff-text {
+        font-size: 36px;
+        margin-left: 0;
+        margin-right: 0;
+        text-align: center;
+      }
+
+      .plain-text {
+        font-size: 18px;
+        margin-left: 4px;
+      }
+
+      .takeoff-text {
+        margin-bottom: 40px;
+      }
+
+      label {
+        font-size: 13px;
+      }
+
+      .form-row {
+        height: 44px;
+      }
+
+      .form-row input {
+        font-size: 14px;
+      }
+
+      .form-row.email-check input {
+        height: 44px;
+      }
+
+      .form-row.email-check button {
+        height: 44px;
+        font-size: 12px;
+        padding: 0 8px;
+      }
+
+      .form-row.button {
+        height: 46px;
+      }
+
+      .form-row.button button {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="signup-container">
+    <div class="title">
+      <div class="todo-text">
+        TO-DO<span class="plain-text">에서</span>
+      </div>
+      <div class="takeoff-text">
+        TAKE-OFF<span class="plain-text">까지</span>
+      </div>
+    </div>
+
+    <form>
+      <div class="form-group">
+        <label for="nickname">닉네임</label>
+        <div class="form-row">
+          <input type="text" id="nickname" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">이메일</label>
+        <div class="form-row email-check">
+          <input type="email" id="email" required />
+          <button type="button">중복 확인</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">비밀번호</label>
+        <div class="form-row">
+          <input type="password" id="password" required />
+          <i data-lucide="eye" class="toggle-lucide" data-target="password"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm-password">비밀번호 확인</label>
+        <div class="form-row">
+          <input type="password" id="confirm-password" required />
+          <i data-lucide="eye" class="toggle-lucide" data-target="confirm-password"></i>
+        </div>
+      </div>
+
+      <div class="form-row button">
+        <button type="submit" formaction="goal.html">회원가입 하기</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    document.querySelector("form").addEventListener("submit", function (e) {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirm-password").value;
+      const nicknameInput = document.getElementById("nickname").value.trim();
+      const nickname = nicknameInput || email.split("@")[0]; 
+
+
+      // js 페이지 내용 검증
+      if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        alert("이메일 형식이 올바르지 않습니다. 예: example@example.com");
+        e.preventDefault();
+        return;
+      }
+
+      // js 페이지 내용 검증
+      if (password !== confirmPassword) {
+        alert("비밀번호가 일치하지 않습니다.");
+        e.preventDefault();
+        return;
+      }
+
+      // LocalStorage 저장
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userPassword", password);
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem(`nickname_${email}`, nickname);
+
+      document.cookie = `user=${email}; path=/; max-age=604800`; 
+      document.cookie = `nickname=${encodeURIComponent(nickname)}; path=/; max-age=604800`;
+      document.cookie = `password=${encodeURIComponent(password)}; path=/; max-age=604800`;
+      document.cookie = "motto=매일매일을 작은 여행처럼 살아보기; path=/; max-age=604800";
+      document.cookie = `email=${encodeURIComponent(email)}; path=/; max-age=604800`;
+
+      let existingUsers = getCookie("registeredUsers");
+      let users = existingUsers ? existingUsers.split(",") : [];
+
+      if (!users.includes(email)) {
+        users.push(email);
+        document.cookie = `registeredUsers=${users.join(",")}; path=/; max-age=604800`;
+      }
+
+      alert("회원가입이 완료되었습니다!");
+    });
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    
+    // 글씨체 적용
+    window.addEventListener("DOMContentLoaded", () => {
+      const font = localStorage.getItem("fontFamily");
+      if (font) {
+        document.body.style.fontFamily = font;
+      }
+
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      document.querySelectorAll(".toggle-lucide").forEach(icon => {
+        icon.addEventListener("click", function () {
+          const targetId = this.dataset.target;
+          const input = document.getElementById(targetId);
+          const isHidden = input.type === "password";
+          input.type = isHidden ? "text" : "password";
+          this.setAttribute("data-lucide", isHidden ? "eye-off" : "eye");
+          lucide.createIcons();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+

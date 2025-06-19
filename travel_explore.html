@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TO-DO & TAKE-OFF</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background-color: #F9F9FA;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .main-wrapper {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      left: 50px;
+      font-size: 36px;
+    }
+
+    .top-bar .highlight {
+      font-weight: 900;
+      font-style: italic;
+      color: #BC6BB8;
+    }
+
+    .top-bar .amp {
+      font-style: normal;
+      color: #656565;
+      font-weight: 700;
+    }
+
+    nav {
+      background: #fff;
+      padding: 28px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .nav-item {
+      position: relative;
+      padding: 0 30px;
+    }
+
+    .nav-item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 60%;
+      background-color: #ccc;
+    }
+
+    .nav-links span,
+    .nav-links a,
+    .dropdown div a {
+      color: #656565;
+      font-size: 28px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav-links a.active > span,
+    .nav-links a.active,
+    .nav-links span.active {
+      color: #BC6BB8;
+    }
+
+    .nav-item:hover .dropdown,
+    .nav-item:focus-within .dropdown {
+      display: flex;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 3px solid #eeeeee;
+      padding: 10px 16px;
+      border-radius: 12px;
+      z-index: 10;
+      flex-direction: row;
+      pointer-events: auto;
+    }
+
+    .dropdown div {
+      padding: 0 12px;
+      position: relative;
+    }
+
+    .dropdown div:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 1px;
+      background-color: #ccc;
+    }
+
+    .dropdown div a {
+      font-size: 22px;
+      white-space: nowrap;
+      display: inline-block;
+      padding: 4px 0;
+    }
+
+    .dropdown div:hover a,
+    a:hover {
+      color: #BC6BB8;
+    }
+
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 80px;
+      padding: 40px 20px;
+    }
+
+    .map-section {
+      width: 864px;
+      max-width: 100%;
+    }
+
+    .map-box {
+      width: 864px;
+      max-width: 100%;
+      height: 834px;
+      background: #FFFFFF;
+      border-radius: 15px;
+      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .map-title {
+      font-size: 40px;
+      color: #5A3C59;
+      margin-bottom: 20px;
+    }
+
+    #map {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+    }
+
+    .right-box {
+      width: 624px;
+      max-width: 100%;
+      min-height: 834px;
+      background: #FFFFFF;
+      border: 3px solid #F5ECF6;
+      box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+      border-radius: 15px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .right-box h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #BC6BB8;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .input-row {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      border: 2px solid #CBCBCB;
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .place-input {
+      flex: 1;
+      height: 100%;
+      padding: 0 20px;
+      font-size: 20px;
+      border: none;
+      outline: none;
+      border-right: 1px solid #CBCBCB;
+    }
+
+    .add-button {
+      height: 100%;
+      padding: 0 20px;
+      font-size: 20px;
+      font-family: inherit;
+      font-weight: 600;
+      color: #BC6BB8;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .place-list {
+      flex-grow: 1;
+      overflow-y: auto;
+      border: 2px solid #CBCBCB;
+      border-radius: 15px;
+      padding: 20px;
+    }
+
+    .place-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #000;
+    }
+
+    .remove-button {
+      background: none;
+      border: none;
+      color: #BC6BB8;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .footer {
+      height: 75px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4%;
+    }
+
+    .footer-text {
+      font-size: 20px;
+      color: #797878;
+    }
+
+    /* ===== 다크모드 스타일 ===== */
+    body.dark-mode {
+      background-color: #908f8f;
+      color: #EAEAEA;
+    }
+
+    body.dark-mode .top-bar .amp {
+      color: #EAEAEA; 
+    }
+  
+    body.dark-mode nav,
+    body.dark-mode .dropdown,
+    body.dark-mode .map-box,
+    body.dark-mode .right-box,
+    body.dark-mode .footer {
+      background-color: #605f5f !important;
+      color: #EAEAEA !important;
+      box-shadow: none !important;
+      border-color: #666 !important;
+    }
+
+    body.dark-mode .top-bar .highlight,
+    body.dark-mode .nav-item.active > a > span,
+    body.dark-mode .dropdown div:hover a,
+    body.dark-mode .add-button:hover {
+      color: #BC6BB8 !important;
+    }
+
+    body.dark-mode .nav-links span,
+    body.dark-mode .nav-links a,
+    body.dark-mode .dropdown div a {
+      color: #EAEAEA !important;
+    }
+
+    body.dark-mode .map-title,
+    body.dark-mode .right-box h2 {
+      color: #EAEAEA;
+    }
+
+    body.dark-mode .place-input {
+      color: #EAEAEA;
+      background-color: transparent;
+      border-color: #888;
+    }
+
+    body.dark-mode .add-button {
+      background-color: transparent;
+      color: #BC6BB8;
+    }
+
+    body.dark-mode .place-item {
+      color: #ddd;
+    }
+
+    body.dark-mode .remove-button {
+      color: #BC6BB8;
+    }
+
+    body.dark-mode .footer-text {
+      color: #ccc;
+    }
+
+    /* 데스크탑 전용 반응형 */
+    @media (min-width: 1025px) {
+      .top-bar {
+        font-size: 36px;
+        left: 50px;
+      }
+
+      .nav-links span,
+      .nav-links a,
+      .dropdown div a {
+        font-size: 28px;
+      }
+
+      .dropdown div a {
+        font-size: 22px;
+      }
+
+      .map-title {
+        font-size: 40px;
+      }
+
+      .right-box h2 {
+        font-size: 32px;
+      }
+
+      .place-input,
+      .add-button,
+      .place-item,
+      .remove-button {
+        font-size: 20px;
+      }
+
+      .footer-text {
+        font-size: 20px;
+      }
+    }
+
+    /* 태블릿 전용 반응형 */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .main-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+        padding: 30px;
+      }
+
+      .map-box,
+      .right-box {
+        width: 90%;
+        height: auto;
+        min-height: auto;
+      }
+
+      .top-bar {
+        font-size: 30px;
+        left: 30px;
+        top: 16px;
+      }
+
+      nav {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .nav-item {
+        padding: 10px 0;
+        width: 100%;
+      }
+
+      .map-title {
+        font-size: 32px;
+        text-align: center;
+      }
+
+      .right-box h2 {
+        font-size: 26px;
+        text-align: center;
+      }
+
+      .place-input,
+      .add-button,
+      .place-item,
+      .remove-button {
+        font-size: 18px;
+      }
+
+      .footer {
+        justify-content: center;
+        padding-right: 0;
+        text-align: center;
+      }
+
+      .footer-text {
+        font-size: 18px;
+      }
+    }
+
+    /* 스마트폰 전용 반응형 */
+    @media (max-width: 767px) {
+      .main-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        padding: 20px;
+      }
+
+      .map-box,
+      .right-box {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        padding: 20px;
+      }
+
+      .top-bar {
+        font-size: 24px;
+        position: static;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+
+      nav {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .nav-item {
+        padding: 8px 0;
+        width: 100%;
+      }
+
+      .map-title {
+        font-size: 26px;
+        text-align: center;
+      }
+
+      .right-box h2 {
+        font-size: 22px;
+        text-align: center;
+      }
+
+      .place-input,
+      .add-button,
+      .place-item,
+      .remove-button {
+        font-size: 16px;
+      }
+
+      .footer {
+        justify-content: center;
+        padding-right: 0;
+        text-align: center;
+      }
+
+      .footer-text {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-container">
+
+    <nav>
+    <a href="main.html">
+      <div class="top-bar">
+        <span class="highlight">TO-DO</span>
+        <span class="amp">&amp;</span>
+        <span class="highlight">TAKE-OFF</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <div class="nav-item"><a href="calendar.html"><span>Calendar</span></a></div>
+      <div class="nav-item">
+        <a href="#"><span>Planner</span></a>
+        <div class="dropdown">
+          <div><a href="planner_weekly.html">Weekly</a></div>
+          <div><a href="#" id="go-daily">Daily</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>Travel</span></a>
+        <div class="dropdown">
+          <div><a href="travel_prepare.html">Prepare</a></div>
+          <div><a href="travel_explore.html">Explore</a></div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#"><span>My Page</span></a>
+        <div class="dropdown">
+          <div><a href="mypage_record.html">Record</a></div>
+          <div><a href="mypage_setting.html">Setting</a></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+    <div class="main-wrapper">
+      <div class="main-container">
+        <div class="map-section">
+          <div class="map-box">
+            <h1 class="map-title">Explore</h1>
+            <div id="map"></div>
+          </div>
+        </div>
+
+        <div class="right-box">
+          <h2>Plan Checker</h2>
+          <div class="input-row">
+            <input class="place-input" type="text" placeholder="장소명 입력" id="place-input" />
+            <button class="add-button" onclick="addPlace()">추가하기</button>
+          </div>
+          <div class="place-list" id="place-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">© 2025 TO-DO to TAKE-OFF. Created by Team 02.</div>
+    </div>
+  </div>
+
+
+  <script>
+    // 로그인된 사용자 정보 쿠키에서 추출
+    function getCurrentUser() {
+      const match = document.cookie.match(/(?:^| )user=([^;]+)/);
+      return match ? match[1] : null;
+    }
+
+    // 내비게이션 메뉴 드롭다운 토글
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+          e.stopPropagation();
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+          this.classList.add('open');
+        });
+      });
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+      });
+
+      const currentPage = location.pathname.split('/').pop();
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+          const span = link.querySelector('span');
+          if (span) span.classList.add('active');
+          else link.classList.add('active');
+        }
+      });
+
+      if (["planner_weekly.html", "planner_daily.html"].includes(currentPage)) {
+        document.querySelectorAll('.nav-item').forEach(item => {
+          const span = item.querySelector('span');
+          if (span && span.textContent.trim() === "Planner") {
+            span.classList.add('active');
+          }
+        });
+      }
+
+      if (["travel_prepare.html", "travel_explore.html"].includes(currentPage)) {
+        document.querySelectorAll('.nav-item').forEach(item => {
+          const span = item.querySelector('span');
+          if (span && span.textContent.trim() === "Travel") {
+            span.classList.add('active');
+          }
+        });
+      }
+
+      if (["mypage_record.html", "mypage_setting.html"].includes(currentPage)) {
+        document.querySelectorAll('.nav-item').forEach(item => {
+          const span = item.querySelector('span');
+          if (span && span.textContent.trim() === "My Page") {
+            span.classList.add('active');
+          }
+        });
+      }
+    });
+  </script>
+
+
+
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=ddce1cf220b6780c2e4b09fc5d32a47f&autoload=false&libraries=services"></script>
+  <script>
+    // 지도 API 로딩 후 사용자별 장소 기록 저장 및 복원 처리
+    document.addEventListener("DOMContentLoaded", () => {
+      kakao.maps.load(() => {
+        const user = getCurrentUser(); // 현재 사용자
+        let map;
+        let markers = [];
+        const placeList = document.getElementById("place-list");
+        const ps = new kakao.maps.services.Places();
+        const geocoder = new kakao.maps.services.Geocoder();
+
+        const mapContainer = document.getElementById('map');
+        const mapOption = {
+          center: new kakao.maps.LatLng(37.545911, 126.964795),
+          level: 2
+        };
+        map = new kakao.maps.Map(mapContainer, mapOption);
+
+        // localStorage에서 사용자별 장소 기록 불러오기
+        const saved = localStorage.getItem(`exploreList_${user}`);
+        const savedNames = saved ? JSON.parse(saved) : [];
+
+        // 저장된 장소 이름들로 마커 및 목록 복원
+        savedNames.forEach(name => {
+          ps.keywordSearch(name, function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+              handlePlaceResult(result[0], name);
+            } else {
+              geocoder.addressSearch(name, function (result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                  handlePlaceResult(result[0], name);
+                }
+              });
+            }
+          });
+        });
+
+        // 장소 추가 함수
+        window.addPlace = function () {
+          const input = document.getElementById('place-input');
+          const placeName = input.value.trim();
+          if (!placeName) {
+            alert("장소명을 입력하세요!");
+            return;
+          }
+
+          ps.keywordSearch(placeName, function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+              handlePlaceResult(result[0], placeName);
+            } else {
+              geocoder.addressSearch(placeName, function (result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                  handlePlaceResult(result[0], placeName);
+                } else {
+                  alert("장소를 찾을 수 없습니다.");
+                }
+              });
+            }
+          });
+        };
+
+        // 마커 생성 및 목록에 추가
+        function handlePlaceResult(data, placeName) {
+          const lat = data.y || data.latitude;
+          const lng = data.x || data.longitude;
+          const coords = new kakao.maps.LatLng(lat, lng);
+
+          const marker = new kakao.maps.Marker({
+            map: map,
+            position: coords
+          });
+
+          map.setCenter(coords);
+          markers.push({ name: placeName, marker });
+
+          const item = document.createElement("div");
+          item.className = "place-item";
+          item.innerHTML = `
+            <span>${placeName}</span>
+            <button class="remove-button" onclick="removePlace(this, '${placeName}')">X</button>
+          `;
+          placeList.appendChild(item);
+          document.getElementById('place-input').value = "";
+
+          savePlaces();
+        }
+
+        // 장소 제거 함수
+        window.removePlace = function (button, name) {
+          const item = button.parentElement;
+          placeList.removeChild(item);
+
+          const index = markers.findIndex(m => m.name === name);
+          if (index !== -1) {
+            markers[index].marker.setMap(null);
+            markers.splice(index, 1);
+          }
+
+          savePlaces();
+        };
+
+        // 현재 사용자 장소 기록을 localStorage에 저장
+        function savePlaces() {
+          if (!user) return;
+          const names = markers.map(m => m.name);
+          localStorage.setItem(`exploreList_${user}`, JSON.stringify(names));
+        }
+      });
+    });
+
+    // 페이지 로드 시 설정 적용
+    window.addEventListener("DOMContentLoaded", () => {
+      // 다크 모드 적용
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      // 글씨 색상 적용
+      const color = localStorage.getItem("fontColor");
+      if (color) {
+        document.body.style.color = color;
+      }
+
+      // 글씨체 적용
+      const font = localStorage.getItem("fontFamily");
+      if (font) {
+        document.body.style.fontFamily = font;
+      }
+    });
+
+    //메뉴바 요일별 파일 매핑 
+    const dayToFile = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dailyLink = document.getElementById('go-daily');
+
+      dailyLink.addEventListener('click', (e) => {
+        e.preventDefault(); 
+
+        const today = new Date();
+        const dayIndex = today.getDay();
+        const fileSuffix = dayToFile[dayIndex]; 
+        const url = `planner_daily_${fileSuffix}.html`;
+
+        window.location.href = url;
+      });
+    });
+  </script>
+</body>
+</html>
