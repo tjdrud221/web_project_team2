@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>로그인</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Song+Myung&family=Hahmlet&family=Gothic+A1&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      width: 360px;
+      padding: 40px 32px;
+    }
+
+    .title {
+      margin-bottom: 10px;
+    }
+
+    .todo-text {
+      text-align: left;
+      font-size: 50px;
+      font-weight: 900;
+      font-style: italic;
+      color: #b86cc3;
+      margin-left: -130px;
+    }
+
+    .takeoff-text {
+      text-align: right;
+      font-size: 50px;
+      font-weight: 900;
+      font-style: italic;
+      color: #b86cc3;
+      margin-right: -130px;
+    }
+
+    .plain-text {
+      font-style: normal;
+      font-weight: 400;
+      color: #555;
+      font-size: 30px;
+      margin-left: 25px;
+    }
+
+    .subtitle {
+      text-align: right;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 124px;
+      margin-right: -130px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      width: 357px;
+      height: 50px;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      padding: 0 14px;
+      box-sizing: border-box;
+    }
+
+    .form-row input {
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      width: 100%;
+      outline: none;
+    }
+
+    .form-row span {
+      white-space: nowrap;
+      color: #555;
+      font-size: 15px;
+    }
+
+    .form-row.button {
+      width: 357px;
+      height: 52px;
+      background-color: #d3b2d5;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin-top: 28px;
+    }
+
+    .form-row.button button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+    }
+
+    .bottom-text {
+      margin-top: 30px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 33px;
+    }
+
+    .bottom-text .label {
+      font-size: 16px;
+      color: #000;
+    }
+
+    .bottom-text a {
+      font-size: 14px;
+      color: #4381EB;
+      text-decoration: none;
+    }
+  
+/* 반응형 웹 개선 미디어 쿼리 with clamp() and layout fix */
+@media (max-width: 767px) {
+  nav {
+    padding: 16px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .top-bar {
+    font-size: clamp(20px, 5vw, 28px) !important;
+    position: static !important;
+    margin-bottom: 10px !important;
+    text-align: center;
+  }
+
+  .nav-links {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .nav-item {
+    padding: 10px 0 !important;
+    width: 100% !important;
+  }
+
+  .container, .section, main, aside, footer {
+    width: 100% !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  .calendar-day {
+    font-size: clamp(20px, 5vw, 32px) !important;
+  }
+
+  .d-day-text {
+    font-size: clamp(18px, 4vw, 28px) !important;
+  }
+
+  .footer-text {
+    font-size: clamp(12px, 2vw, 16px) !important;
+  }
+
+  .card {
+    padding: 16px !important;
+    font-size: clamp(14px, 3vw, 18px) !important;
+  }
+
+  .title {
+    font-size: clamp(16px, 4vw, 24px) !important;
+  }
+
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .input-wrapper,
+  .setting-wrapper,
+  .setting-box,
+  .setting-section {
+    flex-direction: column !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    gap: 12px !important;
+    padding: 10px !important;
+  }
+
+  .setting-title {
+    font-size: clamp(18px, 5vw, 24px) !important;
+  }
+
+  .setting-box input,
+  .setting-box select {
+    width: 100% !important;
+    font-size: clamp(14px, 4vw, 18px) !important;
+  }
+
+  .footer {
+    justify-content: center;
+    padding-right: 0;
+    text-align: center;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="title">
+      <div class="todo-text">
+        TO-DO<span class="plain-text">에서</span>
+      </div>
+      <div class="takeoff-text">
+        TAKE-OFF<span class="plain-text">까지</span>
+      </div>
+    </div>
+    <div class="subtitle">대학생을 위한 통합형 일정 관리 웹 서비스</div>
+
+    <form id="loginForm">
+      <div class="form-row">
+        <input type="text" id="email" placeholder="이메일" required />
+    
+      </div>
+      <div class="form-row">
+        <input type="password" placeholder="비밀번호" required />
+      </div>
+      <div class="form-row button">
+        <button type="submit">로그인 하기</button>
+      </div>
+    </form>
+
+    <div class="bottom-text">
+      <div class="label">계정이 없으신가요?</div>
+      <a href="signup.html">회원가입하기</a>
+    </div>
+  </div>
+
+  <script>
+    document.querySelector("form").addEventListener("submit", function (e) {
+      const emailInput = document.querySelector("input[type='text']");
+      const emailValue = emailInput.value.trim();
+
+      // js 페이지 내용 검증
+      if (!emailValue || !emailValue.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        alert("이메일 형식이 올바르지 않습니다. 예: example@example.com");
+        e.preventDefault();
+        return;
+      }
+
+      // 쿠키 사용자/비회원 구분
+      const registeredUsers = getCookie("registeredUsers");
+      const userList = registeredUsers ? registeredUsers.split(",") : [];
+
+      if (!userList.includes(emailValue)) {
+        alert("회원이 아닙니다. 회원가입을 먼저 진행해주세요.");
+        e.preventDefault(); 
+        return;
+      }
+
+      document.cookie = `user=${emailValue}; path=/; max-age=86400`;
+      document.cookie = `email=${encodeURIComponent(emailValue)}; path=/; max-age=86400`;  
+      const nickname = emailValue.split("@")[0]; 
+      document.cookie = `nickname=${encodeURIComponent(nickname)}; path=/; max-age=86400`;
+
+      alert("TO-DO에서 TAKE-OFF까지, 시작해볼까요?");
+
+      window.location.href = "goal.html";
+
+      e.preventDefault();
+    });
+
+    // 쿠키 사용자/비회원 구분
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    // 글씨체 적용
+    window.addEventListener("DOMContentLoaded", () => {
+      const userFont = localStorage.getItem("fontFamily");
+      if (userFont) {
+        document.body.style.fontFamily = userFont;
+      }
+    });
+  </script>
+</body>
+</html>
