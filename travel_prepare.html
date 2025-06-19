@@ -911,15 +911,6 @@
       return user ? `${key}_${user}` : null;
     }
 
-    // 일정표 입력값 저장 
-    function saveScheduleInputs() {
-      const key = getUserKey('travelScheduleInputs');
-      if (!key) return;
-      const allInputs = document.querySelectorAll('#popup-step5 tbody input');
-      const values = Array.from(allInputs).map(input => input.value);
-      localStorage.setItem(key, JSON.stringify(values));
-    }
-
     // 일정표 입력값 복원
     function restoreScheduleInputs() {
       const key = getUserKey('travelScheduleInputs');
@@ -939,7 +930,9 @@
         localStorage.removeItem(`exploreList_${user}`);
         localStorage.removeItem(`travelData_${user}`);
         localStorage.removeItem(`travelScheduleInputs_${user}`);
-        location.reload();
+
+        document.getElementById('popup-step5').style.display = 'none';
+        document.getElementById('emptyPlan').style.display = 'block';
       }
     }
 
@@ -958,36 +951,15 @@
       placeList.appendChild(item);
     }
 
-    // 새로고침 시 데이터 복원
     window.addEventListener('DOMContentLoaded', () => {
       const user = getCurrentUser();
       if (!user) return;
 
-      const dataKey = `travelData_${user}`;
-      const inputKey = `travelScheduleInputs_${user}`;
-      const savedData = localStorage.getItem(dataKey);
-      const savedInputs = localStorage.getItem(inputKey);
+      // 초기 화면 설정
+      document.getElementById('emptyPlan').style.display = 'block';
+      document.getElementById('popup-step5').style.display = 'none';
 
-      if (savedData) {
-        // 여행 일정 있음 → 테이블 표시 + emptyPlan 숨김
-        const parsed = JSON.parse(savedData);
-        travelData = parsed;
-        generatePlanTable(parsed);
-
-        document.getElementById('emptyPlan').style.display = 'none';
-        document.getElementById('popup-step5').style.display = 'block';
-
-        if (savedInputs) {
-          setTimeout(() => {
-            restoreScheduleInputs();
-          }, 0);
-        }
-      } else {
-        // 여행 일정 없음 → emptyPlan 보여줌
-        document.getElementById('emptyPlan').style.display = 'block';
-        document.getElementById('popup-step5').style.display = 'none';
-      }
-
+      // 저장된 장소 복원 (이 기능은 유지)
       const savedPlaces = localStorage.getItem(`exploreList_${user}`);
       const savedNames = savedPlaces ? JSON.parse(savedPlaces) : [];
       savedNames.forEach(name => {
@@ -1080,11 +1052,6 @@
       }
 
       container.style.display = 'block';
-      setTimeout(() => {
-        restoreScheduleInputs();
-        document.querySelectorAll('#popup-step5 tbody input')
-          .forEach(input => input.addEventListener('input', saveScheduleInputs));
-      }, 0);
     }
 
 
